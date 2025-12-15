@@ -22,6 +22,8 @@ export default function Home() {
         <canvas
           className="w-full border border-gray-300 rounded"
           height="400"
+          aria-label="Visualization canvas for mind-movie display"
+          role="img"
         />
       </div>
     </div>
