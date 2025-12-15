@@ -13,9 +13,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
-        {children}
-      </body>
+      <head>
+        <meta name="base:app_id" content="69400b49d19763ca26ddc309" />
+      </head>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }
