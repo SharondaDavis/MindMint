@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button'
 import { cn, formatBytes } from '@/lib/utils'
 import { getStoredPhotos, addPhoto, updatePhotoCategory, removePhoto, hasPhotosInAllCategories, type PhotoCategory, type StoredPhoto } from '@/lib/photo-storage'
 
+export type { PhotoCategory }
+
 const CATEGORY_META: Record<PhotoCategory, { label: string; hint: string }> = {
   past: { label: 'Past', hint: 'Moments that shaped you' },
   present: { label: 'Present', hint: 'Your current season' },
