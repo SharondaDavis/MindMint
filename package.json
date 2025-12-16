@@ -10,7 +10,6 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@zoralabs/protocol-sdk": "^0.13.14",
     "ethers": "^6.16.0",
     "lucide-react": "^0.263.0",
     "next": "^14.0.0",

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { ArrowLeft, Sparkles } from 'lucide-react'
+import dynamic from 'next/dynamic'
 
 import { CosmicBackground } from '@/components/cosmic-background'
 import { MomentSave } from '@/components/moment-save'
@@ -9,12 +10,20 @@ import { TimelineScrubber } from '@/components/timeline-scrubber'
 import { MoodTemplates } from '@/components/mood-templates'
 import { AffirmationRecorder } from '@/components/affirmation-recorder'
 import { HighFrequencySounds } from '@/components/high-frequency-sounds'
-import { InductionMindMovieCanvas } from '@/components/induction-mindmovie-canvas'
 import { PhotoManager } from '@/components/photo-manager'
 import { WalletConnect } from '@/components/wallet-connect'
 import { ZoraMinter } from '@/components/zora-minter'
 import { useState, useEffect } from 'react'
 import { getChronologicalPhotos, type StoredPhoto } from '@/lib/photo-storage'
+
+const InductionMindMovieCanvas = dynamic(() => import('@/components/induction-mindmovie-canvas').then(mod => ({ default: mod.InductionMindMovieCanvas })), {
+  ssr: false,
+  loading: () => (
+    <div className="aspect-video rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center">
+      <div className="text-sm text-white/60">Loading canvas...</div>
+    </div>
+  )
+})
 
 export default function CreatePage() {
   const [isPlaying, setIsPlaying] = useState(false)

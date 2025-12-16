@@ -3,7 +3,16 @@ import Link from 'next/link';
 import { CosmicBackground } from '@/components/cosmic-background'
 import { UploadFlow } from '@/components/upload-flow'
 import { ProgressBar } from '@/components/progress-bar'
-import { InductionMindMovieCanvas } from '@/components/induction-mindmovie-canvas'
+import dynamic from 'next/dynamic'
+
+const InductionMindMovieCanvas = dynamic(() => import('@/components/induction-mindmovie-canvas').then(mod => ({ default: mod.InductionMindMovieCanvas })), {
+  ssr: false,
+  loading: () => (
+    <div className="aspect-video rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center">
+      <div className="text-sm text-white/60">Loading canvas...</div>
+    </div>
+  )
+})
 
 export default function Home() {
   return (
