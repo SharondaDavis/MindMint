@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import type { ReactNode } from 'react'
 import type { Viewport } from 'next'
-import { CSP_HEADERS } from '@/lib/security'
+
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -28,9 +28,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="base:app_id" content="69400b49d19763ca26ddc309" />
-        {Object.entries(CSP_HEADERS).map(([key, value]) => (
-          <meta key={key} httpEquiv={key} content={value} />
-        ))}
+       
       </head>
       <body className={`${inter.className} min-h-screen bg-background`}>
         {children}
