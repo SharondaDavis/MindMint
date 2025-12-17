@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import type { DragEvent } from 'react'
-import type { PhotoCategory } from '@/lib/photo-storage'
+import type { PhotoCategory } from './upload-flow'
 
 type CategorizeZonesProps = {
   onCategorize: (category: PhotoCategory) => void
