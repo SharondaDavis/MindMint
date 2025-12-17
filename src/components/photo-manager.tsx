@@ -33,23 +33,23 @@ export function PhotoManager({ onPhotosChange }: PhotoManagerProps) {
 
   function getCategoryIcon(category: PhotoCategory) {
     switch (category) {
-      case 'past':
+      case 'dreams':
         return <Clock className="h-3 w-3" />
-      case 'present':
+      case 'vision':
         return <Sparkles className="h-3 w-3" />
-      case 'future':
+      case 'manifestation':
         return <Calendar className="h-3 w-3" />
     }
   }
 
   function getCategoryColor(category: PhotoCategory) {
     switch (category) {
-      case 'past':
-        return 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-      case 'present':
-        return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-      case 'future':
-        return 'bg-violet-500/20 text-violet-300 border-violet-500/30'
+      case 'dreams':
+        return 'bg-blue-500/20 text-blue-300 border-blue-500/30'
+      case 'vision':
+        return 'bg-green-500/20 text-green-300 border-green-500/30'
+      case 'manifestation':
+        return 'bg-purple-500/20 text-purple-300 border-purple-500/30'
     }
   }
 
@@ -107,7 +107,7 @@ export function PhotoManager({ onPhotosChange }: PhotoManagerProps) {
             {/* Category Selection */}
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
               <div className="flex gap-1">
-                {(['past', 'present', 'future'] as PhotoCategory[]).map((category) => (
+                {(['dreams', 'vision', 'manifestation'] as PhotoCategory[]).map((category) => (
                   <button
                     key={category}
                     onClick={() => updateCategory(photo.id, category)}
@@ -132,14 +132,14 @@ export function PhotoManager({ onPhotosChange }: PhotoManagerProps) {
           {photos.length} photos total
         </div>
         <div className="flex gap-4">
-          <span className="text-amber-300">
-            Past: {photos.filter(p => p.category === 'past').length}
+          <span className="text-blue-300">
+            Dreams: {photos.filter(p => p.category === 'dreams').length}
           </span>
-          <span className="text-emerald-300">
-            Present: {photos.filter(p => p.category === 'present').length}
+          <span className="text-green-300">
+            Vision: {photos.filter(p => p.category === 'vision').length}
           </span>
-          <span className="text-violet-300">
-            Future: {photos.filter(p => p.category === 'future').length}
+          <span className="text-purple-300">
+            Manifestation: {photos.filter(p => p.category === 'manifestation').length}
           </span>
         </div>
       </div>

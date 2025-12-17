@@ -88,7 +88,9 @@ export function UploadFlow({ compact = false }: { compact?: boolean }) {
           name: file.name,
           size: file.size
         })
-        setItems(prev => [...prev, newPhoto])
+        if (newPhoto) {
+          setItems(prev => [...prev, newPhoto])
+        }
       }
       reader.readAsDataURL(file)
     }
