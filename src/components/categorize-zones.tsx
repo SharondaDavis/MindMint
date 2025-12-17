@@ -28,6 +28,7 @@ const CATEGORY_META: Record<PhotoCategory, { label: string; color: string; bgGra
   }
 }
 
+// Updated for Vercel build
 export function CategorizeZones({ onCategorize, selectedCount, compact = false }: CategorizeZonesProps) {
   const [dragOverCategory, setDragOverCategory] = useState<PhotoCategory | null>(null)
 
