@@ -11,12 +11,12 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
+  themeColor: '#000000',
 }
 
 export const metadata: Metadata = {
   title: 'MindMint - Create Your Dream Reality',
   description: 'Use visualization to create your reality and explore legacy questions that reveal your true purpose',
-  themeColor: '#000000',
 }
 
 export default function RootLayout({
