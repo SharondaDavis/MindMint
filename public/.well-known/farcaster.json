@@ -1,1 +1,9 @@
-
+{
+  "miniapp": {
+    "name": "MindMint",
+    "url": "https://mindmint-gryq184af-nurse-bloc.vercel.app",
+    "iconUrl": "https://mindmint-gryq184af-nurse-bloc.vercel.app/icon.png",
+    "splashImageUrl": "https://mindmint-gryq184af-nurse-bloc.vercel.app/splash.png",
+    "splashBackgroundColor": "#000000"
+  }
+}
