@@ -11,18 +11,18 @@ type CategorizeZonesProps = {
 }
 
 const CATEGORY_META: Record<PhotoCategory, { label: string; color: string; bgGradient: string }> = {
-  past: { 
-    label: 'Past', 
+  dreams: { 
+    label: 'Dreams', 
     color: 'bg-blue-500', 
     bgGradient: 'from-blue-500/20 to-blue-600/10' 
   },
-  present: { 
-    label: 'Present', 
+  vision: { 
+    label: 'Vision', 
     color: 'bg-green-500', 
     bgGradient: 'from-green-500/20 to-green-600/10' 
   },
-  future: { 
-    label: 'Future', 
+  manifestation: { 
+    label: 'Manifestation', 
     color: 'bg-purple-500', 
     bgGradient: 'from-purple-500/20 to-purple-600/10' 
   }

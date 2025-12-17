@@ -11,9 +11,9 @@ import { getStoredPhotos, addPhoto, updatePhotoCategory, removePhoto, hasPhotosI
 export type { PhotoCategory }
 
 const CATEGORY_META: Record<PhotoCategory, { label: string; hint: string }> = {
-  past: { label: 'Past', hint: 'Moments that shaped you' },
-  present: { label: 'Present', hint: 'Your current season' },
-  future: { label: 'Future', hint: 'Where you\'re going' },
+  dreams: { label: 'Dreams', hint: 'Your deepest aspirations' },
+  vision: { label: 'Vision', hint: 'Your future self' },
+  manifestation: { label: 'Manifestation', hint: 'Your reality in creation' },
 }
 
 function makeId() {
@@ -34,7 +34,7 @@ export function UploadFlow({ compact = false }: { compact?: boolean }) {
   }, [])
 
   const counts = useMemo(() => {
-    const out: Record<PhotoCategory, number> = { past: 0, present: 0, future: 0 }
+    const out: Record<PhotoCategory, number> = { dreams: 0, vision: 0, manifestation: 0 }
     for (const it of items) out[it.category] += 1
     return out
   }, [items])
@@ -84,7 +84,7 @@ export function UploadFlow({ compact = false }: { compact?: boolean }) {
         const newPhoto = addPhoto({
           id: makeId(),
           url,
-          category: 'present', // Default category
+          category: 'dreams', // Default category
           name: file.name,
           size: file.size
         })
@@ -140,7 +140,7 @@ export function UploadFlow({ compact = false }: { compact?: boolean }) {
           <p className={compact ? 'mt-1 text-xs text-white' : 'mt-1 text-sm text-muted-foreground'}>
             {compact
               ? 'Drag & drop images or click to select'
-              : 'Add moments from your past, present, and future. You’ll mint them into a mind-movie.'}
+              : 'Add images of your dreams, vision, and manifestation. You\'ll mint them into your reality.'}
           </p>
         </div>
         <Button variant="outline" onClick={() => inputRef.current?.click()} className="text-white border-white/20 hover:bg-white/10 hover:text-white">
@@ -189,9 +189,9 @@ export function UploadFlow({ compact = false }: { compact?: boolean }) {
           <div className="flex items-center justify-between mb-4">
             <div className={cn('text-sm', compact ? 'text-white' : 'text-muted-foreground')}>
               {items.length} photos
-              <span className="ml-2">Past: {counts.past}</span>
-              <span className="ml-2">Present: {counts.present}</span>
-              <span className="ml-2">Future: {counts.future}</span>
+              <span className="ml-2">Dreams: {counts.dreams}</span>
+              <span className="ml-2">Vision: {counts.vision}</span>
+              <span className="ml-2">Manifestation: {counts.manifestation}</span>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -217,14 +217,14 @@ export function UploadFlow({ compact = false }: { compact?: boolean }) {
                 </button>
               </div>
               <div className="flex gap-2">
-                {(['past', 'present', 'future'] as PhotoCategory[]).map(cat => (
+                {(['dreams', 'vision', 'manifestation'] as PhotoCategory[]).map(cat => (
                   <button
                     key={cat}
                     onClick={() => applyCategoryToSelected(cat)}
                     className={cn(
                       'flex-1 rounded px-2 py-1 text-xs font-medium transition-colors',
-                      cat === 'past' ? 'bg-blue-500 text-white' :
-                      cat === 'present' ? 'bg-green-500 text-white' :
+                      cat === 'dreams' ? 'bg-blue-500 text-white' :
+                      cat === 'vision' ? 'bg-green-500 text-white' :
                       'bg-purple-500 text-white'
                     )}
                   >
@@ -254,8 +254,8 @@ export function UploadFlow({ compact = false }: { compact?: boolean }) {
                   <div className="absolute top-2 right-2">
                     <div className={cn(
                       'rounded-full px-2 py-1 text-xs font-medium',
-                      it.category === 'past' ? 'bg-blue-500/80 text-white' :
-                      it.category === 'present' ? 'bg-green-500/80 text-white' :
+                      it.category === 'dreams' ? 'bg-blue-500/80 text-white' :
+                      it.category === 'vision' ? 'bg-green-500/80 text-white' :
                       'bg-purple-500/80 text-white'
                     )}>
                       {it.category}
@@ -274,7 +274,7 @@ export function UploadFlow({ compact = false }: { compact?: boolean }) {
                 
                 {/* Quick category selection buttons */}
                 <div className="flex gap-1 mb-2">
-                  {(['past', 'present', 'future'] as PhotoCategory[]).map(cat => (
+                  {(['dreams', 'vision', 'manifestation'] as PhotoCategory[]).map(cat => (
                     <button
                       key={cat}
                       onClick={(e) => {
@@ -284,8 +284,8 @@ export function UploadFlow({ compact = false }: { compact?: boolean }) {
                       className={cn(
                         'flex-1 rounded px-1 py-0.5 text-xs font-medium transition-colors',
                         it.category === cat
-                          ? cat === 'past' ? 'bg-blue-500 text-white' :
-                            cat === 'present' ? 'bg-green-500 text-white' :
+                          ? cat === 'dreams' ? 'bg-blue-500 text-white' :
+                            cat === 'vision' ? 'bg-green-500 text-white' :
                             'bg-purple-500 text-white'
                           : compact ? 'bg-white/10 text-white/60 hover:bg-white/20' : 'bg-muted text-muted-foreground hover:bg-accent'
                       )}
