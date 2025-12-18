@@ -1,3 +1,5 @@
+'use client'
+
 import { Upload, Sparkles, Heart, Brain, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
