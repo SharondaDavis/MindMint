@@ -13,10 +13,25 @@ export const viewport: Viewport = {
   maximumScale: 1,
 }
 
-export const metadata: Metadata = {
-  title: 'MindMint - Create Your Dream Reality',
-  description: 'Use visualization to create your reality and explore legacy questions that reveal your true purpose',
-  themeColor: '#000000',
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: 'MindMint - Create Your Dream Reality',
+    description: 'Use visualization to create your reality and explore legacy questions that reveal your true purpose',
+    themeColor: '#000000',
+    other: {
+      "fc:miniapp": JSON.stringify({
+        version: "1.0.0",
+        imageUrl: "https://mindmint.fun",
+        button: {
+          title: "Join the MindMint",
+          action: {
+            name: "Launch MindMint",
+            url: "https://mindmint.fun"
+          },
+        },
+      }),
+    },
+  }
 }
 
 export default function RootLayout({
