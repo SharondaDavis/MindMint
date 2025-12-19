@@ -20,13 +20,16 @@ export async function generateMetadata(): Promise<Metadata> {
     themeColor: '#000000',
     other: {
       "fc:miniapp": JSON.stringify({
-        version: "1.0.0",
+        version: "next",
         imageUrl: "https://mindmint.fun",
         button: {
-          title: "Join the MindMint",
+          title: "Launch MindMint",
           action: {
-            name: "Launch MindMint",
-            url: "https://mindmint.fun"
+            type: "launch_miniapp",
+            name: "MindMint",
+            url: "https://mindmint.fun",
+            splashImageUrl: "https://mindmint.fun",
+            splashBackgroundColor: "#000000",
           },
         },
       }),
