@@ -21,14 +21,14 @@ export async function generateMetadata(): Promise<Metadata> {
     other: {
       "fc:miniapp": JSON.stringify({
         version: "next",
-        imageUrl: "https://mindmint.fun",
+        imageUrl: "https://mindmint.fun/splash.png",
         button: {
           title: "Launch MindMint",
           action: {
             type: "launch_miniapp",
             name: "MindMint",
             url: "https://mindmint.fun",
-            splashImageUrl: "https://mindmint.fun",
+            splashImageUrl: "https://mindmint.fun/splash.png",
             splashBackgroundColor: "#000000",
           },
         },
