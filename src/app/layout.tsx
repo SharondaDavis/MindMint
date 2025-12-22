@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import type { ReactNode } from 'react'
 import type { Viewport } from 'next'
+import { MiniappReady } from '@/components/miniapp-ready'
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -49,6 +50,7 @@ export default function RootLayout({
        
       </head>
       <body className={`${inter.className} min-h-screen bg-background`}>
+        <MiniappReady />
         {children}
       </body>
     </html>
