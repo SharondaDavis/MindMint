@@ -23,7 +23,7 @@
     "ogTitle": "MindMint",
     "ogDescription": "Get your daily aura in 60 seconds.",
     "ogImageUrl": "https://mindmint.fun/splash.png",
-    "noindex": false,
+    "noindex": true,
     "screenshotUrls": [
       "https://mindmint.fun/splash.png"
     ]
