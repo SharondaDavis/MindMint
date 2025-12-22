@@ -14,6 +14,7 @@
     "tags": ["mindfulness", "ritual", "aura", "wellness"],
     "homeUrl": "https://mindmint.fun",
     "url": "https://mindmint.fun",
+    "webhookUrl": "https://mindmint.fun/api/webhook",
     "iconUrl": "https://mindmint.fun/icon.png",
     "imageUrl": "https://mindmint.fun/splash.png",
     "splashImageUrl": "https://mindmint.fun/splash.png",
@@ -22,6 +23,7 @@
     "ogTitle": "MindMint",
     "ogDescription": "Get your daily aura in 60 seconds.",
     "ogImageUrl": "https://mindmint.fun/splash.png",
+    "noindex": false,
     "screenshotUrls": [
       "https://mindmint.fun/splash.png"
     ]
