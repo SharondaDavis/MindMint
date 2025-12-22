@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="MindMint logo">
+  <defs>
+    <radialGradient id="auraGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F5E9FF"/>
+      <stop offset="45%" stop-color="#CBA2FF"/>
+      <stop offset="75%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#4C1D95"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E9D5FF"/>
+      <stop offset="50%" stop-color="#A78BFA"/>
+      <stop offset="100%" stop-color="#6D28D9"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="120" fill="#0B0B1A"/>
+  <circle cx="256" cy="256" r="170" fill="url(#auraGlow)" opacity="0.9"/>
+  <circle cx="256" cy="256" r="130" fill="#0B0B1A"/>
+  <circle cx="256" cy="256" r="158" fill="none" stroke="url(#ring)" stroke-width="20" opacity="0.9"/>
+  <circle cx="256" cy="256" r="82" fill="none" stroke="#E9D5FF" stroke-width="10" opacity="0.8"/>
+  <path d="M256 130L282 210L368 210L300 262L326 342L256 292L186 342L212 262L144 210L230 210Z" fill="#F1E8FF"/>
+  <circle cx="256" cy="256" r="14" fill="#8B5CF6"/>
+  <circle cx="256" cy="256" r="6" fill="#F5E9FF"/>
+</svg>
