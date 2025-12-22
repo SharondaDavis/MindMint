@@ -308,7 +308,7 @@ export function DailySpark({
   }
 
   const startSound = () => {
-    const option = SOUND_OPTIONS.find((item) => item.id === soundId)
+    const option = weeklySounds.find((item) => item.id === soundId)
     if (!option || option.freq === 0) return
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioContext()
