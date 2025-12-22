@@ -141,6 +141,7 @@ export async function switchToBase(testnet = false): Promise<void> {
 
 // Transaction utilities
 export async function sendTransaction(transaction: {
+  from: string
   to: string
   data: string
   value?: string
@@ -156,6 +157,7 @@ export async function sendTransaction(transaction: {
     const txHash = await window.ethereum.request({
       method: 'eth_sendTransaction',
       params: [{
+        from: transaction.from,
         to: transaction.to,
         data: transaction.data,
         value: transaction.value || '0x0',

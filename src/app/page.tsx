@@ -1,35 +1,76 @@
 'use client'
 
-import { LifeBuoy, Sparkles, Wallet, X } from 'lucide-react'
+import { Sparkles, Wallet } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { sdk } from '@farcaster/miniapp-sdk'
 import { CosmicBackground } from '@/components/cosmic-background'
 import { WalletConnector } from '@/components/wallet-connector'
-import { DreamMinter } from '@/components/dream-minter'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { DailySpark } from '@/components/daily-spark'
-import { DreamBingo } from '@/components/dream-bingo'
 
 export default function Home() {
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
   const [chainId, setChainId] = useState<string | null>(null)
-  const [bingoHasRow, setBingoHasRow] = useState(false)
-  const [bingoIsFull, setBingoIsFull] = useState(false)
-  const [showGrounding, setShowGrounding] = useState(false)
-  const [currentAura, setCurrentAura] = useState<string>('aurora')
+  const [hasDailyCheck, setHasDailyCheck] = useState(false)
+  const [currentAura, setCurrentAura] = useState('aurora')
+  const [affirmation, setAffirmation] = useState('')
+  const [suggestion, setSuggestion] = useState('')
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const saved = window.localStorage.getItem('mindmint:affirmation:v1')
+    if (saved) setAffirmation(saved)
+    const seed = window.localStorage.getItem('mindmint:affirmation:seed:v1')
+    if (seed) setSuggestion(seed)
+  }, [])
+
+  const suggestionsByAura: Record<string, string[]> = {
+    aurora: [
+      'I welcome fresh ideas and playful experiments.',
+      'Creativity flows through me in small, steady ways.',
+      'I trust my imagination to guide my next step.',
+    ],
+    ocean: [
+      'I move with ease and let the day unfold.',
+      'My calm keeps me aligned and grounded.',
+      'I choose the smoothest next step.',
+    ],
+    sunset: [
+      'I release what is done and make space for new light.',
+      'Today ends with gratitude and grace.',
+      'I honor endings as new beginnings.',
+    ],
+    star: [
+      'I share my light with quiet confidence.',
+      'My progress deserves to be seen.',
+      'I trust myself to shine.',
+    ],
+    moon: [
+      'I listen inward and trust my intuition.',
+      'Stillness brings me clarity.',
+      'I am safe to slow down and reflect.',
+    ],
+    crystal: [
+      'I choose clarity over clutter.',
+      'Focus comes easily when I simplify.',
+      'I see what matters most today.',
+    ],
+  }
 
   useEffect(() => {
     sdk.actions.ready()
   }, [])
 
-  const openGrounding = () => {
+  const pickSuggestion = (aura = currentAura) => {
+    const pool = suggestionsByAura[aura] || suggestionsByAura.aurora
+    const next = pool[Math.floor(Math.random() * pool.length)]
+    setSuggestion(next)
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new Event('mindmint:ground'))
+      window.localStorage.setItem('mindmint:affirmation:seed:v1', next)
     }
-    setShowGrounding(true)
   }
 
-  const canCollect = useMemo(() => bingoHasRow || bingoIsFull, [bingoHasRow, bingoIsFull])
+  const canCollect = useMemo(() => hasDailyCheck, [hasDailyCheck])
 
   const handleWalletConnect = (address: string, chainId: string) => {
     setWalletAddress(address)
@@ -48,7 +89,7 @@ export default function Home() {
           <header className="flex items-center justify-between gap-4">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/80 backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-fuchsia-300/80 shadow-[0_0_18px_rgba(217,70,239,0.55)]" />
-              MindMint • The funnest mini app for dreamers
+              MindMint • A mini app for dreamers
             </div>
 
             <div className="hidden items-center gap-2 text-xs text-white/60 sm:flex">
@@ -58,16 +99,47 @@ export default function Home() {
           </header>
 
           <section className="mt-8 grid gap-6">
-            <DailySpark 
-              onAuraChange={(aura) => setCurrentAura(aura)}
-            />
-            <DreamBingo
-              auraType={currentAura}
-              onProgress={({ hasRow, isFull }) => {
-                setBingoHasRow(hasRow)
-                setBingoIsFull(isFull)
+            <DailySpark
+              onSparkChange={(spark) => {
+                setHasDailyCheck(!!spark?.dateKey)
+              }}
+              onAuraChange={(aura) => {
+                setCurrentAura(aura)
+                pickSuggestion(aura)
               }}
             />
+            <section className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+              <div className="text-xs uppercase tracking-[0.25em] text-white/50">Daily affirmation</div>
+              <p className="mt-2 text-sm text-white/80">
+                A gentle prompt matched to today’s aura.
+              </p>
+              <div className="mt-4 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white/85">
+                {suggestion || 'Tap “Surprise me” to get a suggestion.'}
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                <button
+                  onClick={() => pickSuggestion(currentAura)}
+                  className="rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-semibold text-white transition hover:bg-white/15"
+                >
+                  Surprise me
+                </button>
+              </div>
+              <div className="mt-4">
+                <textarea
+                  value={affirmation}
+                  onChange={(event) => {
+                    const next = event.target.value
+                    setAffirmation(next)
+                    if (typeof window !== 'undefined') {
+                      window.localStorage.setItem('mindmint:affirmation:v1', next)
+                    }
+                  }}
+                  placeholder="Write your own affirmation..."
+                  rows={3}
+                  className="w-full resize-none rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white/90 placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-300/60"
+                />
+              </div>
+            </section>
           </section>
 
           <section className="mt-8">
@@ -77,7 +149,7 @@ export default function Home() {
                   <div>
                     <div className="text-sm font-semibold text-white">Collecting is optional</div>
                     <div className="mt-1 text-sm text-white/70">
-                      Complete a bingo row to unlock optional wallet connect + mint.
+                      Complete today’s aura check to unlock optional wallet connect + mint.
                     </div>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-black/20 p-3 text-white/80">
@@ -91,19 +163,12 @@ export default function Home() {
                   <WalletConnector onConnect={handleWalletConnect} onDisconnect={handleWalletDisconnect} />
                 </ErrorBoundary>
                 {walletAddress ? (
-                  <ErrorBoundary>
-                    <DreamMinter
-                      walletAddress={walletAddress}
-                      dreamBoard={{
-                        name: bingoIsFull ? 'My Dream Week' : 'My Dream Row',
-                        description: bingoIsFull
-                          ? 'A week of tiny actions that added up to something real.'
-                          : 'A small row of wins — proof I showed up.',
-                        imageUrl: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200',
-                        categories: bingoIsFull ? ['dreams', 'vision', 'manifestation'] : ['vision', 'manifestation'],
-                      }}
-                    />
-                  </ErrorBoundary>
+                  <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+                    <div className="text-sm font-semibold text-white">Wallet connected</div>
+                    <div className="mt-1 text-sm text-white/70">
+                      Minting launches in version 2. For now, enjoy the daily aura ritual.
+                    </div>
+                  </div>
                 ) : (
                   <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
                     <div className="text-sm font-semibold text-white">Ready when you are</div>
@@ -121,72 +186,6 @@ export default function Home() {
           </footer>
         </div>
 
-        <button
-          onClick={openGrounding}
-          className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-black/40 px-4 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/60"
-          aria-label="Dream Anchor"
-        >
-          <LifeBuoy className="h-4 w-4" />
-          Dream Anchor
-        </button>
-
-        {showGrounding && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-black/60">
-              <div className="flex items-start justify-between gap-3 border-b border-white/10 p-4">
-                <div>
-                  <div className="text-sm font-semibold text-white">Dream Anchor (5–4–3)</div>
-                  <div className="mt-1 text-xs text-white/60">A quick sensory reset to get back into the game.</div>
-                </div>
-                <button
-                  onClick={() => setShowGrounding(false)}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-300/60"
-                  aria-label="Close grounding"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              <div className="space-y-3 p-4">
-                <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                  <div className="text-xs text-white/60">Step 1</div>
-                  <div className="mt-1 text-sm font-semibold text-white">Name 5 things you can see.</div>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                  <div className="text-xs text-white/60">Step 2</div>
-                  <div className="mt-1 text-sm font-semibold text-white">Name 4 things you can feel.</div>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                  <div className="text-xs text-white/60">Step 3</div>
-                  <div className="mt-1 text-sm font-semibold text-white">Name 3 things you can hear.</div>
-                </div>
-
-                <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-xs text-white/60">
-                  Bonus: after you finish, tap “Reroll” and try a different Dream Method.
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 border-t border-white/10 p-4">
-                <button
-                  onClick={() => {
-                    if (typeof window !== 'undefined') {
-                      window.dispatchEvent(new Event('mindmint:ground'))
-                    }
-                  }}
-                  className="rounded-2xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/60"
-                >
-                  Stop & reset
-                </button>
-                <button
-                  onClick={() => setShowGrounding(false)}
-                  className="rounded-2xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-300/60"
-                >
-                  I’m good
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </main>
     </CosmicBackground>
   )
