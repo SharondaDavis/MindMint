@@ -16,8 +16,8 @@ export const viewport: Viewport = {
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: 'MindMint - Create Your Dream Reality',
-    description: 'Use visualization to create your reality and explore legacy questions that reveal your true purpose',
+    title: 'MindMint - Daily Aura Ritual',
+    description: 'A 60-second daily aura ritual: breathe, spin, and receive guidance plus an affirmation.',
     other: {
       "fc:miniapp": JSON.stringify({
         version: "next",
