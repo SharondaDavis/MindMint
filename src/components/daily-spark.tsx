@@ -31,12 +31,75 @@ const STORAGE_KEY = 'mindmint:daily_spark:v1'
 const BREATH_SECONDS = 4
 const BREATH_CYCLE = ['Inhale', 'Hold', 'Exhale', 'Hold'] as const
 const BREATH_TOTAL_SECONDS = 60
-const SOUND_OPTIONS = [
-  { id: 'off', label: 'Off', freq: 0 },
-  { id: '432', label: '432 Hz', freq: 432 },
-  { id: '528', label: '528 Hz', freq: 528 },
-  { id: 'rain', label: 'Soft Tone', freq: 396 },
+const SOUND_SETS = [
+  [
+    { id: 'off', label: 'Off', freq: 0 },
+    { id: '432', label: '432 Hz', freq: 432 },
+    { id: '528', label: '528 Hz', freq: 528 },
+    { id: 'rain', label: 'Soft Tone', freq: 396 },
+  ],
+  [
+    { id: 'off', label: 'Off', freq: 0 },
+    { id: '396', label: '396 Hz', freq: 396 },
+    { id: '417', label: '417 Hz', freq: 417 },
+    { id: '639', label: '639 Hz', freq: 639 },
+  ],
+  [
+    { id: 'off', label: 'Off', freq: 0 },
+    { id: '285', label: '285 Hz', freq: 285 },
+    { id: '741', label: '741 Hz', freq: 741 },
+    { id: '852', label: '852 Hz', freq: 852 },
+  ],
 ] as const
+
+const MODES = ['morning', 'afternoon', 'night'] as const
+type RitualMode = typeof MODES[number]
+
+const MODE_COPY: Record<RitualMode, { title: string; prompt: string; cta: string }> = {
+  morning: {
+    title: 'Morning aura',
+    prompt: 'Breathe, spin, and align your day.',
+    cta: 'Start your 1‑minute breath sync.',
+  },
+  afternoon: {
+    title: 'Afternoon check‑in',
+    prompt: 'Reset your focus with a tiny mid‑day ritual.',
+    cta: 'Take one mindful minute.',
+  },
+  night: {
+    title: 'Night intentions',
+    prompt: 'Set tomorrow’s tone with a calm close.',
+    cta: 'Unwind and set an intention.',
+  },
+}
+
+function getModeForHour(date = new Date()): RitualMode {
+  const hour = date.getHours()
+  if (hour >= 5 && hour < 12) return 'morning'
+  if (hour >= 12 && hour < 18) return 'afternoon'
+  return 'night'
+}
+
+function getWeekIndex(date = new Date()): number {
+  const start = new Date(date.getFullYear(), 0, 1)
+  const diff = date.getTime() - start.getTime()
+  return Math.floor(diff / (7 * 24 * 60 * 60 * 1000))
+}
+
+function getWeeklySoundSet(): typeof SOUND_SETS[number] {
+  if (typeof window === 'undefined') return SOUND_SETS[0]
+  const weekKey = getWeekIndex()
+  const storedWeek = Number(window.localStorage.getItem('mindmint:sound:week'))
+  const storedSet = Number(window.localStorage.getItem('mindmint:sound:set'))
+  const isValidStored = Number.isFinite(storedSet) && storedSet >= 0 && storedSet < SOUND_SETS.length
+  if (storedWeek === weekKey && isValidStored) {
+    return SOUND_SETS[storedSet]
+  }
+  const nextSet = weekKey % SOUND_SETS.length
+  window.localStorage.setItem('mindmint:sound:week', String(weekKey))
+  window.localStorage.setItem('mindmint:sound:set', String(nextSet))
+  return SOUND_SETS[nextSet]
+}
 
 const AURAS: Aura[] = [
   {
@@ -161,7 +224,8 @@ export function DailySpark({
   const [breathTotalLeft, setBreathTotalLeft] = useState(BREATH_TOTAL_SECONDS)
   const [practiceResult, setPracticeResult] = useState<WheelResult | null>(null)
   const [isPracticeSpin, setIsPracticeSpin] = useState(false)
-  const [soundId, setSoundId] = useState<typeof SOUND_OPTIONS[number]['id']>('off')
+  const [ritualMode, setRitualMode] = useState<RitualMode>('morning')
+  const [soundId, setSoundId] = useState<string>('off')
   const [isSoundOn, setIsSoundOn] = useState(false)
   const audioContextRef = useRef<AudioContext | null>(null)
   const oscillatorRef = useRef<OscillatorNode | null>(null)
@@ -176,6 +240,8 @@ export function DailySpark({
 
   useEffect(() => {
     setMounted(true)
+    const mode = getModeForHour()
+    setRitualMode(mode)
     onSparkChange?.(state.current, state.streak)
     if (state.current?.wheelResult?.aura) {
       onAuraChange?.(state.current.wheelResult.aura.id)
@@ -224,6 +290,7 @@ export function DailySpark({
       breathIntervalRef.current = null
     }
     setIsBreathing(false)
+    stopSound()
     setGamePhase('ready')
   }
 
@@ -321,6 +388,7 @@ export function DailySpark({
       breathIntervalRef.current = null
     }
     setIsBreathing(false)
+    stopSound()
     setGamePhase('breathing')
   }
 
@@ -408,13 +476,21 @@ export function DailySpark({
   const breathPhase = BREATH_CYCLE[breathPhaseIndex]
   const breathScale =
     breathPhase === 'Inhale' ? 1 : breathPhase === 'Exhale' ? 0.65 : 1
+  const weeklySounds = useMemo(() => getWeeklySoundSet(), [])
+  useEffect(() => {
+    if (!weeklySounds.find((option) => option.id === soundId)) {
+      setSoundId('off')
+      stopSound()
+    }
+  }, [weeklySounds, soundId])
+  const modeCopy = MODE_COPY[ritualMode]
   const guidanceText = hasToday
     ? 'Daily aura is locked in. Pull again anytime for a practice spin.'
     : isBreathing
       ? 'Follow the on‑screen breath cues for 1 minute.'
       : gamePhase === 'ready'
         ? 'Pull the lever to reveal your daily aura.'
-        : 'Tap the card to start your 1‑minute breath sync.'
+        : modeCopy.cta
 
   if (!mounted) {
     return (
@@ -448,6 +524,15 @@ export function DailySpark({
             {guidanceText}
           </p>
         </header>
+
+        <div className="mt-5 text-center text-xs uppercase tracking-[0.3em] text-white/50">
+          {ritualMode} ritual
+        </div>
+        <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/80">
+          <div className="text-xs uppercase tracking-[0.25em] text-white/50">Ritual mode</div>
+          <div className="mt-2 text-base font-semibold text-white">{modeCopy.title}</div>
+          <p className="mt-1 text-sm text-white/70">{modeCopy.prompt}</p>
+        </div>
 
         <div className="mt-6">
           <button
@@ -490,18 +575,18 @@ export function DailySpark({
               </div>
             </div>
 
-            <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-xs text-white/70">
-                  <Volume2 className="h-4 w-4" />
-                  Mindfulness sound
-                </div>
-                <button
-                  type="button"
-                  onClick={(event) => {
-                    event.stopPropagation()
-                    toggleSound()
-                  }}
+              <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 text-xs text-white/70">
+                    <Volume2 className="h-4 w-4" />
+                    Weekly mindfulness tune
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      toggleSound()
+                    }}
                   disabled={soundId === 'off'}
                   className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-50"
                 >
@@ -510,7 +595,7 @@ export function DailySpark({
                 </button>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                {SOUND_OPTIONS.map((option) => (
+                {weeklySounds.map((option) => (
                   <button
                     key={option.id}
                     type="button"
