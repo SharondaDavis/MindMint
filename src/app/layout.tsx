@@ -11,13 +11,13 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
+  themeColor: '#000000',
 }
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: 'MindMint - Create Your Dream Reality',
     description: 'Use visualization to create your reality and explore legacy questions that reveal your true purpose',
-    themeColor: '#000000',
     other: {
       "fc:miniapp": JSON.stringify({
         version: "next",
