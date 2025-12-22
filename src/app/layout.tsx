@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
     other: {
       "fc:miniapp": JSON.stringify({
         version: "next",
-        imageUrl: "https://mindmint.fun/splash.png",
+        imageUrl: "https://mindmint.fun/logo.svg",
         button: {
           title: "Launch MindMint",
           action: {
