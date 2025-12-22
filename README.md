@@ -1,18 +1,17 @@
-# MindMint is a Base Mini App that lets users upload photos of their past, present, and future, then plays them back as a “mind-movie” with kaleidoscope visuals and high-frequency audio.
+# MindMint is a Base Mini App that delivers a 60‑second daily aura ritual: breathe, spin the aura wheel, and receive guidance plus an affirmation.
 
 ## Status
 🚧 MVP in progress.
 
 ## What it does (MVP)
-- Upload personal photos (past / present / future)
-- Generate a guided “mind-movie” playback experience
-- Kaleidoscope-style visual effect
-- High-frequency / ambient audio during playback
+- 1‑minute breathing ritual with guided cues
+- Spin the aura wheel for a daily (or practice) aura
+- Receive an aura tip and related affirmation
+- Optional mindfulness tones during the ritual
 
 ## Tech (initial)
 - Next.js (App Router)
 - Vercel deployment
-- HTML5 Canvas (kaleidoscope visuals)
 - Web Audio API (sound)
 
 ## Base Verification

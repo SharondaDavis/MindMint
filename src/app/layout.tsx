@@ -11,24 +11,24 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
+  themeColor: '#000000',
 }
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: 'MindMint - Create Your Dream Reality',
-    description: 'Use visualization to create your reality and explore legacy questions that reveal your true purpose',
-    themeColor: '#000000',
+    title: 'MindMint - Daily Aura Ritual',
+    description: 'A 60-second daily aura ritual: breathe, spin, and receive guidance plus an affirmation.',
     other: {
       "fc:miniapp": JSON.stringify({
         version: "next",
-        imageUrl: "https://mindmint.fun",
+        imageUrl: "https://mindmint.fun/splash.png",
         button: {
           title: "Launch MindMint",
           action: {
             type: "launch_miniapp",
             name: "MindMint",
             url: "https://mindmint.fun",
-            splashImageUrl: "https://mindmint.fun",
+            splashImageUrl: "https://mindmint.fun/splash.png",
             splashBackgroundColor: "#000000",
           },
         },

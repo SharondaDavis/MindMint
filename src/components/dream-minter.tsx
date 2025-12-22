@@ -57,6 +57,10 @@ export function DreamMinter({
   }
 
   const mintDreamBoard = async () => {
+    if (!/^0x[a-fA-F0-9]{40}$/.test(walletAddress)) {
+      setError('Invalid wallet address')
+      return
+    }
     if (!validateDreamBoard()) return
 
     setIsMinting(true)
@@ -72,6 +76,7 @@ export function DreamMinter({
       
       // Send transaction
       const result = await sendTransaction({
+        from: walletAddress,
         to: '0x...', // DreamMint contract address
         data: mintData,
         value: '0x0', // No ETH required for minting (or set minting fee)

@@ -35,13 +35,13 @@ export default function UploadPage() {
               </div>
               <div className="rounded-xl border border-white/10 bg-black/20 p-4">
                 <div className="font-medium text-white">Future</div>
-                <div className="mt-1">A visual intention-set for what's next.</div>
+                <div className="mt-1">A visual intention-set for what&apos;s next.</div>
               </div>
             </div>
 
             <div className="mt-6 rounded-xl border border-white/10 bg-black/20 p-4">
               <div className="text-sm font-medium text-white">Next</div>
-              <p className="mt-1 text-sm text-white">After upload, you'll generate your kaleidoscope mind-movie.</p>
+              <p className="mt-1 text-sm text-white">After upload, you&apos;ll generate your kaleidoscope mind-movie.</p>
               <div className="mt-3">
                 <Link href="/create" className="text-sm font-medium text-fuchsia-300 hover:text-fuchsia-200">
                   Go to Create

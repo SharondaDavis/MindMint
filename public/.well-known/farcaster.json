@@ -1,10 +1,24 @@
 {
   "miniapp": {
+    "version": "1",
     "name": "MindMint",
+    "subtitle": "Daily aura ritual",
+    "description": "A 60-second daily aura ritual: breathe, spin, and receive guidance plus an affirmation.",
+    "tagline": "Breathe. Spin. Align.",
+    "primaryCategory": "wellness",
+    "tags": ["mindfulness", "ritual", "aura", "wellness"],
+    "homeUrl": "https://mindmint.fun",
     "url": "https://mindmint.fun",
     "iconUrl": "https://mindmint.fun/favicon.ico",
-    "imageUrl": "https://mindmint.fun",
-    "splashImageUrl": "https://mindmint.fun",
-    "splashBackgroundColor": "#000000"
+    "imageUrl": "https://mindmint.fun/splash.png",
+    "splashImageUrl": "https://mindmint.fun/splash.png",
+    "splashBackgroundColor": "#000000",
+    "heroImageUrl": "https://mindmint.fun/splash.png",
+    "ogTitle": "MindMint",
+    "ogDescription": "Get your daily aura in 60 seconds.",
+    "ogImageUrl": "https://mindmint.fun/splash.png",
+    "screenshotUrls": [
+      "https://mindmint.fun/splash.png"
+    ]
   }
 }
