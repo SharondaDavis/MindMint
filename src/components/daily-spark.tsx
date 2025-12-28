@@ -28,45 +28,24 @@ type DailySparkState = {
 }
 
 const STORAGE_KEY = 'mindmint:daily_spark:v1'
-const SOUND_SETS = [
-  [
-    { id: 'off', label: 'Off', freq: 0 },
-    { id: '432', label: '432 Hz', freq: 432 },
-    { id: '528', label: '528 Hz', freq: 528 },
-    { id: 'rain', label: 'Soft Tone', freq: 396 },
-  ],
-  [
-    { id: 'off', label: 'Off', freq: 0 },
-    { id: '396', label: '396 Hz', freq: 396 },
-    { id: '417', label: '417 Hz', freq: 417 },
-    { id: '639', label: '639 Hz', freq: 639 },
-  ],
-  [
-    { id: 'off', label: 'Off', freq: 0 },
-    { id: '285', label: '285 Hz', freq: 285 },
-    { id: '741', label: '741 Hz', freq: 741 },
-    { id: '852', label: '852 Hz', freq: 852 },
-  ],
-] as const
-
 const MODES = ['morning', 'afternoon', 'night'] as const
 type RitualMode = typeof MODES[number]
 
 const MODE_COPY: Record<RitualMode, { title: string; prompt: string; cta: string }> = {
   morning: {
     title: 'Morning aura',
-    prompt: 'Breathe, spin, and align your day.',
-    cta: 'Start your 1‑minute breath sync.',
+    prompt: 'A quick reset to align your day.',
+    cta: 'Take a deep breath and pull the lever.',
   },
   afternoon: {
     title: 'Afternoon check‑in',
-    prompt: 'Reset your focus with a tiny mid‑day ritual.',
-    cta: 'Take one mindful minute.',
+    prompt: 'Refocus with a short mid‑day reset.',
+    cta: 'Take a deep breath and pull the lever.',
   },
   night: {
     title: 'Night intentions',
-    prompt: 'Set tomorrow’s tone with a calm close.',
-    cta: 'Unwind and set an intention.',
+    prompt: 'Close the day and set tomorrow’s tone.',
+    cta: 'Take a deep breath and pull the lever.',
   },
 }
 
@@ -77,26 +56,6 @@ function getModeForHour(date = new Date()): RitualMode {
   return 'night'
 }
 
-function getWeekIndex(date = new Date()): number {
-  const start = new Date(date.getFullYear(), 0, 1)
-  const diff = date.getTime() - start.getTime()
-  return Math.floor(diff / (7 * 24 * 60 * 60 * 1000))
-}
-
-function getWeeklySoundSet(): typeof SOUND_SETS[number] {
-  if (typeof window === 'undefined') return SOUND_SETS[0]
-  const weekKey = getWeekIndex()
-  const storedWeek = Number(window.localStorage.getItem('mindmint:sound:week'))
-  const storedSet = Number(window.localStorage.getItem('mindmint:sound:set'))
-  const isValidStored = Number.isFinite(storedSet) && storedSet >= 0 && storedSet < SOUND_SETS.length
-  if (storedWeek === weekKey && isValidStored) {
-    return SOUND_SETS[storedSet]
-  }
-  const nextSet = weekKey % SOUND_SETS.length
-  window.localStorage.setItem('mindmint:sound:week', String(weekKey))
-  window.localStorage.setItem('mindmint:sound:set', String(nextSet))
-  return SOUND_SETS[nextSet]
-}
 
 const AURAS: Aura[] = [
   {
@@ -217,10 +176,10 @@ export function DailySpark({
   const [gamePhase, setGamePhase] = useState<'ready' | 'spinning' | 'result'>('ready')
   const [practiceResult, setPracticeResult] = useState<WheelResult | null>(null)
   const [ritualMode, setRitualMode] = useState<RitualMode>('morning')
-  const [soundId, setSoundId] = useState<string>('off')
   const [isSoundOn, setIsSoundOn] = useState(false)
   const audioContextRef = useRef<AudioContext | null>(null)
   const oscillatorRef = useRef<OscillatorNode | null>(null)
+  const oscillatorRef2 = useRef<OscillatorNode | null>(null)
   const gainRef = useRef<GainNode | null>(null)
   const [wheelRotation, setWheelRotation] = useState(0)
   const spinIntervalRef = useRef<number | null>(null)
@@ -239,6 +198,12 @@ export function DailySpark({
       setWheelRotation(state.current.wheelResult.rotation)
     }
   }, [onSparkChange, state.current, state.streak, onAuraChange])
+
+  useEffect(() => {
+    if (!mounted) return
+    startSound()
+    return () => stopSound()
+  }, [mounted])
 
   useEffect(() => {
     if (!mounted) return
@@ -280,6 +245,11 @@ export function DailySpark({
       oscillatorRef.current.disconnect()
       oscillatorRef.current = null
     }
+    if (oscillatorRef2.current) {
+      oscillatorRef2.current.stop()
+      oscillatorRef2.current.disconnect()
+      oscillatorRef2.current = null
+    }
     if (gainRef.current) {
       gainRef.current.disconnect()
       gainRef.current = null
@@ -288,23 +258,32 @@ export function DailySpark({
   }
 
   const startSound = () => {
-    const option = weeklySounds.find((item) => item.id === soundId)
-    if (!option || option.freq === 0) return
-    if (!audioContextRef.current) {
-      audioContextRef.current = new AudioContext()
+    if (isSoundOn) return
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new AudioContext()
+      }
+      const ctx = audioContextRef.current
+      const osc = ctx.createOscillator()
+      const osc2 = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'sine'
+      osc2.type = 'sine'
+      osc.frequency.value = 432
+      osc2.frequency.value = 528
+      gain.gain.value = 0.02
+      osc.connect(gain)
+      osc2.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start()
+      osc2.start()
+      oscillatorRef.current = osc
+      oscillatorRef2.current = osc2
+      gainRef.current = gain
+      setIsSoundOn(true)
+    } catch {
+      return
     }
-    const ctx = audioContextRef.current
-    const osc = ctx.createOscillator()
-    const gain = ctx.createGain()
-    osc.type = 'sine'
-    osc.frequency.value = option.freq
-    gain.gain.value = 0.04
-    osc.connect(gain)
-    gain.connect(ctx.destination)
-    osc.start()
-    oscillatorRef.current = osc
-    gainRef.current = gain
-    setIsSoundOn(true)
   }
 
   const toggleSound = () => {
@@ -415,13 +394,6 @@ export function DailySpark({
 
   const displayAura = practiceResult?.aura ?? activeAura
   const auraTips = displayAura?.support ?? []
-  const weeklySounds = useMemo(() => getWeeklySoundSet(), [])
-  useEffect(() => {
-    if (!weeklySounds.find((option) => option.id === soundId)) {
-      setSoundId('off')
-      stopSound()
-    }
-  }, [weeklySounds, soundId])
   const modeCopy = MODE_COPY[ritualMode]
   const guidanceText = hasToday
     ? 'Daily aura is locked in. Pull again anytime for a practice spin.'
@@ -461,7 +433,7 @@ export function DailySpark({
         </header>
 
         <div className="mt-5 text-center text-xs uppercase tracking-[0.3em] text-white/50">
-          {ritualMode} ritual
+          {ritualMode} flow
         </div>
         <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/80">
           <div className="text-xs uppercase tracking-[0.25em] text-white/50">Ritual mode</div>
@@ -472,7 +444,7 @@ export function DailySpark({
         <div className="mt-6 rounded-[28px] border border-white/15 bg-[#0b1d3a] px-6 py-6 text-left shadow-[0_20px_60px_rgba(5,12,30,0.6)]">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <div className="text-xs uppercase tracking-[0.25em] text-white/50">Quick ritual</div>
+              <div className="text-xs uppercase tracking-[0.25em] text-white/50">Quick reset</div>
               <div className="mt-2 text-lg font-semibold text-white">Take a deep breath</div>
               <p className="mt-1 text-sm text-white/70">
                 Pull the lever when you’re ready for your aura.
@@ -487,45 +459,16 @@ export function DailySpark({
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-xs text-white/70">
                 <Volume2 className="h-4 w-4" />
-                Weekly mindfulness tune
+                Ambient tone
               </div>
               <button
                 type="button"
                 onClick={toggleSound}
-                disabled={soundId === 'off'}
                 className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isSoundOn ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
                 {isSoundOn ? 'Pause' : 'Play'}
               </button>
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {weeklySounds.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  onClick={() => {
-                    if (option.id === 'off') {
-                      setSoundId('off')
-                      stopSound()
-                      return
-                    }
-                    setSoundId(option.id)
-                    if (isSoundOn) {
-                      stopSound()
-                      setTimeout(() => startSound(), 0)
-                    }
-                  }}
-                  className={
-                    'rounded-full border px-3 py-1 text-xs transition ' +
-                    (soundId === option.id
-                      ? 'border-amber-200/60 bg-amber-200/15 text-white'
-                      : 'border-white/10 bg-white/5 text-white/70 hover:bg-white/10')
-                  }
-                >
-                  {option.label}
-                </button>
-              ))}
             </div>
           </div>
         </div>
