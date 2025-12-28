@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Pause, Play, RefreshCw, Share2, Sparkles, Volume2 } from 'lucide-react'
+import { Pause, Play, Share2, Sparkles, Volume2 } from 'lucide-react'
 
 type Aura = {
   id: string
@@ -28,48 +28,24 @@ type DailySparkState = {
 }
 
 const STORAGE_KEY = 'mindmint:daily_spark:v1'
-const BREATH_SECONDS = 4
-const BREATH_CYCLE = ['Inhale', 'Hold', 'Exhale', 'Hold'] as const
-const BREATH_TOTAL_SECONDS = 60
-const SOUND_SETS = [
-  [
-    { id: 'off', label: 'Off', freq: 0 },
-    { id: '432', label: '432 Hz', freq: 432 },
-    { id: '528', label: '528 Hz', freq: 528 },
-    { id: 'rain', label: 'Soft Tone', freq: 396 },
-  ],
-  [
-    { id: 'off', label: 'Off', freq: 0 },
-    { id: '396', label: '396 Hz', freq: 396 },
-    { id: '417', label: '417 Hz', freq: 417 },
-    { id: '639', label: '639 Hz', freq: 639 },
-  ],
-  [
-    { id: 'off', label: 'Off', freq: 0 },
-    { id: '285', label: '285 Hz', freq: 285 },
-    { id: '741', label: '741 Hz', freq: 741 },
-    { id: '852', label: '852 Hz', freq: 852 },
-  ],
-] as const
-
 const MODES = ['morning', 'afternoon', 'night'] as const
 type RitualMode = typeof MODES[number]
 
 const MODE_COPY: Record<RitualMode, { title: string; prompt: string; cta: string }> = {
   morning: {
     title: 'Morning aura',
-    prompt: 'Breathe, spin, and align your day.',
-    cta: 'Start your 1‑minute breath sync.',
+    prompt: 'A quick reset to align your day.',
+    cta: 'Take a deep breath and pull the lever.',
   },
   afternoon: {
     title: 'Afternoon check‑in',
-    prompt: 'Reset your focus with a tiny mid‑day ritual.',
-    cta: 'Take one mindful minute.',
+    prompt: 'Refocus with a short mid‑day reset.',
+    cta: 'Take a deep breath and pull the lever.',
   },
   night: {
     title: 'Night intentions',
-    prompt: 'Set tomorrow’s tone with a calm close.',
-    cta: 'Unwind and set an intention.',
+    prompt: 'Close the day and set tomorrow’s tone.',
+    cta: 'Take a deep breath and pull the lever.',
   },
 }
 
@@ -80,34 +56,14 @@ function getModeForHour(date = new Date()): RitualMode {
   return 'night'
 }
 
-function getWeekIndex(date = new Date()): number {
-  const start = new Date(date.getFullYear(), 0, 1)
-  const diff = date.getTime() - start.getTime()
-  return Math.floor(diff / (7 * 24 * 60 * 60 * 1000))
-}
-
-function getWeeklySoundSet(): typeof SOUND_SETS[number] {
-  if (typeof window === 'undefined') return SOUND_SETS[0]
-  const weekKey = getWeekIndex()
-  const storedWeek = Number(window.localStorage.getItem('mindmint:sound:week'))
-  const storedSet = Number(window.localStorage.getItem('mindmint:sound:set'))
-  const isValidStored = Number.isFinite(storedSet) && storedSet >= 0 && storedSet < SOUND_SETS.length
-  if (storedWeek === weekKey && isValidStored) {
-    return SOUND_SETS[storedSet]
-  }
-  const nextSet = weekKey % SOUND_SETS.length
-  window.localStorage.setItem('mindmint:sound:week', String(weekKey))
-  window.localStorage.setItem('mindmint:sound:set', String(nextSet))
-  return SOUND_SETS[nextSet]
-}
 
 const AURAS: Aura[] = [
   {
     id: 'aurora',
     name: 'Aurora',
     emoji: '🌈',
-    wheelColor: '#f59e0b',
-    glow: 'rgba(245, 158, 11, 0.55)',
+    wheelColor: '#f472b6',
+    glow: 'rgba(244, 114, 182, 0.6)',
     tip: 'Creative breakthroughs are close. Make room for experiments.',
     support: ['Try one tiny new idea today.', 'Swap routines for 10 minutes.', 'Capture a spark in notes.'],
   },
@@ -115,8 +71,8 @@ const AURAS: Aura[] = [
     id: 'ocean',
     name: 'Ocean',
     emoji: '🌊',
-    wheelColor: '#fb7185',
-    glow: 'rgba(251, 113, 133, 0.5)',
+    wheelColor: '#22d3ee',
+    glow: 'rgba(34, 211, 238, 0.6)',
     tip: 'Flow over force. Let the day move you forward.',
     support: ['Slow your pace by 10%.', 'Hydrate before decisions.', 'Choose the smoothest next step.'],
   },
@@ -124,8 +80,8 @@ const AURAS: Aura[] = [
     id: 'sunset',
     name: 'Sunset',
     emoji: '🌅',
-    wheelColor: '#f97316',
-    glow: 'rgba(249, 115, 22, 0.55)',
+    wheelColor: '#fb7185',
+    glow: 'rgba(251, 113, 133, 0.6)',
     tip: 'Release what is done. Make space for what is next.',
     support: ['Close one open loop.', 'Give something a gentle ending.', 'Notice one good thing from today.'],
   },
@@ -133,8 +89,8 @@ const AURAS: Aura[] = [
     id: 'star',
     name: 'Star',
     emoji: '⭐',
-    wheelColor: '#fbbf24',
-    glow: 'rgba(251, 191, 36, 0.55)',
+    wheelColor: '#facc15',
+    glow: 'rgba(250, 204, 21, 0.65)',
     tip: 'Your light helps others. Share a small win.',
     support: ['Send one encouraging message.', 'Take a proud snapshot of progress.', 'Say yes to visibility.'],
   },
@@ -142,8 +98,8 @@ const AURAS: Aura[] = [
     id: 'moon',
     name: 'Moon',
     emoji: '🌙',
-    wheelColor: '#fcd34d',
-    glow: 'rgba(252, 211, 77, 0.5)',
+    wheelColor: '#60a5fa',
+    glow: 'rgba(96, 165, 250, 0.6)',
     tip: 'Quiet focus beats noise. Listen inward.',
     support: ['Turn down one distraction.', 'Journal for 3 minutes.', 'Let intuition choose the next action.'],
   },
@@ -151,8 +107,8 @@ const AURAS: Aura[] = [
     id: 'crystal',
     name: 'Crystal',
     emoji: '💎',
-    wheelColor: '#fb923c',
-    glow: 'rgba(251, 146, 60, 0.5)',
+    wheelColor: '#a855f7',
+    glow: 'rgba(168, 85, 247, 0.6)',
     tip: 'Clarity arrives through simplicity. Trim the clutter.',
     support: ['Delete one thing you do not need.', 'Name the single priority.', 'Clean a small surface.'],
   },
@@ -217,22 +173,13 @@ export function DailySpark({
 }) {
   const [state, setState] = useState<DailySparkState>(() => loadState())
   const [mounted, setMounted] = useState(false)
-  const [gamePhase, setGamePhase] = useState<'breathing' | 'ready' | 'spinning' | 'result'>('breathing')
-  const [isBreathing, setIsBreathing] = useState(false)
-  const [breathPhaseIndex, setBreathPhaseIndex] = useState(0)
-  const [breathTimeLeft, setBreathTimeLeft] = useState(BREATH_SECONDS)
-  const [breathTotalLeft, setBreathTotalLeft] = useState(BREATH_TOTAL_SECONDS)
+  const [gamePhase, setGamePhase] = useState<'ready' | 'spinning' | 'result'>('ready')
   const [practiceResult, setPracticeResult] = useState<WheelResult | null>(null)
-  const [isPracticeSpin, setIsPracticeSpin] = useState(false)
   const [ritualMode, setRitualMode] = useState<RitualMode>('morning')
-  const [soundId, setSoundId] = useState<string>('off')
   const [isSoundOn, setIsSoundOn] = useState(false)
-  const audioContextRef = useRef<AudioContext | null>(null)
-  const oscillatorRef = useRef<OscillatorNode | null>(null)
-  const gainRef = useRef<GainNode | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
   const [wheelRotation, setWheelRotation] = useState(0)
   const spinIntervalRef = useRef<number | null>(null)
-  const breathIntervalRef = useRef<number | null>(null)
 
   const todayKey = useMemo(() => getDateKey(new Date()), [])
   const hasToday = state.current?.dateKey === todayKey
@@ -251,80 +198,64 @@ export function DailySpark({
 
   useEffect(() => {
     if (!mounted) return
+    startSound()
+    return () => stopSound()
+  }, [mounted])
+
+  useEffect(() => {
+    if (!mounted) return
     if (hasToday) {
       setGamePhase('result')
     } else {
-      setGamePhase('breathing')
+      setGamePhase('ready')
     }
   }, [hasToday, mounted])
 
   useEffect(() => {
     return () => {
-      if (breathIntervalRef.current) {
-        window.clearInterval(breathIntervalRef.current)
-        breathIntervalRef.current = null
-      }
       if (spinIntervalRef.current) {
         window.clearInterval(spinIntervalRef.current)
         spinIntervalRef.current = null
       }
-      if (audioContextRef.current) {
-        audioContextRef.current.close()
-        audioContextRef.current = null
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
       }
     }
   }, [])
 
   useEffect(() => {
     const onGround = () => {
-      stopBreathing()
+      stopSound()
+      if (!hasToday) {
+        setGamePhase('ready')
+      }
     }
 
     window.addEventListener('mindmint:ground', onGround)
     return () => window.removeEventListener('mindmint:ground', onGround)
-  }, [])
-
-  const completeBreathing = () => {
-    if (breathIntervalRef.current) {
-      window.clearInterval(breathIntervalRef.current)
-      breathIntervalRef.current = null
-    }
-    setIsBreathing(false)
-    stopSound()
-    setGamePhase('ready')
-  }
+  }, [hasToday])
 
   const stopSound = () => {
-    if (oscillatorRef.current) {
-      oscillatorRef.current.stop()
-      oscillatorRef.current.disconnect()
-      oscillatorRef.current = null
-    }
-    if (gainRef.current) {
-      gainRef.current.disconnect()
-      gainRef.current = null
-    }
+    if (!audioRef.current) return
+    audioRef.current.pause()
+    audioRef.current.currentTime = 0
     setIsSoundOn(false)
   }
 
-  const startSound = () => {
-    const option = weeklySounds.find((item) => item.id === soundId)
-    if (!option || option.freq === 0) return
-    if (!audioContextRef.current) {
-      audioContextRef.current = new AudioContext()
+  const startSound = async () => {
+    if (isSoundOn) return
+    if (!audioRef.current) {
+      audioRef.current = new Audio('/ambient.m4a')
+      audioRef.current.loop = true
+      audioRef.current.volume = 0.25
     }
-    const ctx = audioContextRef.current
-    const osc = ctx.createOscillator()
-    const gain = ctx.createGain()
-    osc.type = 'sine'
-    osc.frequency.value = option.freq
-    gain.gain.value = 0.04
-    osc.connect(gain)
-    gain.connect(ctx.destination)
-    osc.start()
-    oscillatorRef.current = osc
-    gainRef.current = gain
-    setIsSoundOn(true)
+    try {
+      await audioRef.current.play()
+      setIsSoundOn(true)
+    } catch {
+      return
+    }
   }
 
   const toggleSound = () => {
@@ -336,72 +267,22 @@ export function DailySpark({
   }
 
   const playChime = () => {
-    try {
-      if (!audioContextRef.current) {
-        audioContextRef.current = new AudioContext()
+    if (!audioRef.current) return
+    const currentVolume = audioRef.current.volume
+    audioRef.current.volume = Math.min(1, currentVolume + 0.15)
+    window.setTimeout(() => {
+      if (audioRef.current) {
+        audioRef.current.volume = currentVolume
       }
-      const ctx = audioContextRef.current
-      const osc = ctx.createOscillator()
-      const gain = ctx.createGain()
-      osc.type = 'sine'
-      osc.frequency.setValueAtTime(880, ctx.currentTime)
-      osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.6)
-      gain.gain.setValueAtTime(0.001, ctx.currentTime)
-      gain.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.05)
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7)
-      osc.connect(gain)
-      gain.connect(ctx.destination)
-      osc.start()
-      osc.stop(ctx.currentTime + 0.75)
-    } catch {
-      return
-    }
-  }
-
-  const startBreathing = () => {
-    setIsBreathing(true)
-    setBreathPhaseIndex(0)
-    setBreathTimeLeft(BREATH_SECONDS)
-    setBreathTotalLeft(BREATH_TOTAL_SECONDS)
-
-    breathIntervalRef.current = window.setInterval(() => {
-      setBreathTotalLeft((prev) => {
-        if (prev <= 1) {
-          completeBreathing()
-          return 0
-        }
-        return prev - 1
-      })
-      setBreathTimeLeft((prev) => {
-        if (prev > 1) return prev - 1
-
-        setBreathPhaseIndex((index) => (index + 1) % BREATH_CYCLE.length)
-
-        return BREATH_SECONDS
-      })
-    }, 1000)
-  }
-
-  const stopBreathing = () => {
-    if (breathIntervalRef.current) {
-      window.clearInterval(breathIntervalRef.current)
-      breathIntervalRef.current = null
-    }
-    setIsBreathing(false)
-    stopSound()
-    setGamePhase('breathing')
+    }, 400)
   }
 
   const spinWheel = () => {
     if (gamePhase === 'spinning') return
-    if (isBreathing) {
-      stopBreathing()
-    }
     if (gamePhase !== 'ready') {
       setGamePhase('ready')
     }
     const practiceSpin = hasToday
-    setIsPracticeSpin(practiceSpin)
     if (practiceSpin) {
       setPracticeResult(null)
     }
@@ -473,29 +354,15 @@ export function DailySpark({
 
   const displayAura = practiceResult?.aura ?? activeAura
   const auraTips = displayAura?.support ?? []
-  const breathPhase = BREATH_CYCLE[breathPhaseIndex]
-  const breathScale =
-    breathPhase === 'Inhale' ? 1 : breathPhase === 'Exhale' ? 0.65 : 1
-  const weeklySounds = useMemo(() => getWeeklySoundSet(), [])
-  useEffect(() => {
-    if (!weeklySounds.find((option) => option.id === soundId)) {
-      setSoundId('off')
-      stopSound()
-    }
-  }, [weeklySounds, soundId])
   const modeCopy = MODE_COPY[ritualMode]
   const guidanceText = hasToday
     ? 'Daily aura is locked in. Pull again anytime for a practice spin.'
-    : isBreathing
-      ? 'Follow the on‑screen breath cues for 1 minute.'
-      : gamePhase === 'ready'
-        ? 'Pull the lever to reveal your daily aura.'
-        : modeCopy.cta
+    : 'Take a deep breath, then pull the lever.'
 
   if (!mounted) {
     return (
-      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-950/70 via-indigo-950/50 to-slate-900/80 p-6 backdrop-blur">
-        <div className="absolute -inset-8 bg-[radial-gradient(circle_at_top,_rgba(124,58,237,0.22),_transparent_60%)]" />
+      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#16062f] via-[#1d0f57] to-[#0b1028] p-6 backdrop-blur">
+        <div className="absolute -inset-8 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.35),_transparent_60%)]" />
         <div
           className="absolute inset-0 opacity-40"
           style={{ backgroundImage: 'linear-gradient(120deg, rgba(255,255,255,0.04) 0%, transparent 40%, rgba(255,255,255,0.03) 70%, transparent 100%)' }}
@@ -513,8 +380,8 @@ export function DailySpark({
   }
 
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-950/70 via-indigo-950/50 to-slate-900/80 p-6 backdrop-blur">
-      <div className="absolute -inset-8 bg-[radial-gradient(circle_at_top,_rgba(124,58,237,0.22),_transparent_60%)]" />
+    <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#16062f] via-[#1d0f57] to-[#0b1028] p-6 backdrop-blur">
+      <div className="absolute -inset-8 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.35),_transparent_60%)]" />
       <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'linear-gradient(120deg, rgba(255,255,255,0.04) 0%, transparent 40%, rgba(255,255,255,0.03) 70%, transparent 100%)' }} />
 
       <div className="relative">
@@ -526,7 +393,7 @@ export function DailySpark({
         </header>
 
         <div className="mt-5 text-center text-xs uppercase tracking-[0.3em] text-white/50">
-          {ritualMode} ritual
+          {ritualMode} flow
         </div>
         <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/80">
           <div className="text-xs uppercase tracking-[0.25em] text-white/50">Ritual mode</div>
@@ -534,107 +401,46 @@ export function DailySpark({
           <p className="mt-1 text-sm text-white/70">{modeCopy.prompt}</p>
         </div>
 
-        <div className="mt-6">
-          <button
-            type="button"
-            onClick={isBreathing ? stopBreathing : startBreathing}
-            disabled={hasToday}
-            className="group w-full rounded-[28px] border border-white/15 bg-[#0b1d3a] px-6 py-8 text-left shadow-[0_20px_60px_rgba(5,12,30,0.6)] transition hover:scale-[1.01] hover:shadow-[0_26px_80px_rgba(8,18,40,0.7)] disabled:cursor-not-allowed disabled:opacity-60"
-            aria-live="polite"
-          >
-            <div className="flex items-start justify-end gap-4">
-              <div className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70">
-                <Share2 className="h-4 w-4" />
-              </div>
+        <div className="mt-6 rounded-[28px] border border-white/15 bg-[#0b1d3a] px-6 py-6 text-left shadow-[0_20px_60px_rgba(5,12,30,0.6)]">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="text-xs uppercase tracking-[0.25em] text-white/50">Quick reset</div>
+              <div className="mt-2 text-lg font-semibold text-white">Take a deep breath</div>
+              <p className="mt-1 text-sm text-white/70">
+                Pull the lever when you’re ready for your aura.
+              </p>
             </div>
+            <div className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70">
+              <Share2 className="h-4 w-4" />
+            </div>
+          </div>
 
-            <div className="mt-6 text-center">
-              <div className="mt-6 text-lg font-semibold text-white">1-minute breathing exercise</div>
-              <div className="mt-2 text-sm text-white/70">
-                {hasToday ? 'Checked today' : 'Tap to begin a calm 4–4–4–4 loop.'}
+          <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-xs text-white/70">
+                <Volume2 className="h-4 w-4" />
+                Ambient tone
               </div>
+              <button
+                type="button"
+                onClick={toggleSound}
+                className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSoundOn ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+                {isSoundOn ? 'Pause' : 'Play'}
+              </button>
             </div>
-
-            <div className="mt-6 text-center">
-              <div className="mx-auto flex h-28 w-28 items-center justify-center">
-                <div
-                  className="relative flex h-20 w-20 items-center justify-center rounded-full border border-white/20 bg-white/10"
-                  style={{
-                    transform: `scale(${isBreathing ? breathScale : 0.7})`,
-                    transition: `transform ${BREATH_SECONDS}s ease-in-out`,
-                  }}
-                >
-                  <div className="absolute inset-0 rounded-full bg-white/15 blur-md" />
-                </div>
-              </div>
-              <div className="text-2xl font-semibold text-white transition duration-500 ease-out">
-                {isBreathing ? BREATH_CYCLE[breathPhaseIndex] : 'Ready'}
-              </div>
-              <div className="mt-2 text-sm text-white/70 transition duration-500 ease-out">
-                {isBreathing ? `${breathTimeLeft}s • ${breathTotalLeft}s left` : 'Tap to start'}
-              </div>
-            </div>
-
-              <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 text-xs text-white/70">
-                    <Volume2 className="h-4 w-4" />
-                    Weekly mindfulness tune
-                  </div>
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      toggleSound()
-                    }}
-                  disabled={soundId === 'off'}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {isSoundOn ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-                  {isSoundOn ? 'Pause' : 'Play'}
-                </button>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {weeklySounds.map((option) => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      if (option.id === 'off') {
-                        setSoundId('off')
-                        stopSound()
-                        return
-                      }
-                      setSoundId(option.id)
-                      if (isSoundOn) {
-                        stopSound()
-                        setTimeout(() => startSound(), 0)
-                      }
-                    }}
-                    className={
-                      'rounded-full border px-3 py-1 text-xs transition ' +
-                      (soundId === option.id
-                        ? 'border-amber-200/60 bg-amber-200/15 text-white'
-                        : 'border-white/10 bg-white/5 text-white/70 hover:bg-white/10')
-                    }
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </button>
+          </div>
         </div>
 
         <div className="mt-8 flex flex-col items-center gap-6">
           <div className="relative">
             <div className="absolute -top-7 left-1/2 z-10 -translate-x-1/2">
-              <div className="h-0 w-0 border-l-[14px] border-r-[14px] border-b-[22px] border-l-transparent border-r-transparent border-b-amber-300 shadow-[0_0_35px_rgba(251,191,36,0.9)]" />
+              <div className="h-0 w-0 border-l-[14px] border-r-[14px] border-b-[22px] border-l-transparent border-r-transparent border-b-cyan-300 shadow-[0_0_35px_rgba(34,211,238,0.9)]" />
             </div>
 
             <div
-              className="relative h-72 w-72 rounded-full border border-white/20 shadow-[0_0_70px_rgba(124,58,237,0.5)]"
+              className="relative h-72 w-72 rounded-full border border-white/20 shadow-[0_0_90px_rgba(99,102,241,0.7)]"
               style={{ transform: `rotate(${wheelRotation}deg)` }}
             >
               <div
@@ -680,12 +486,12 @@ export function DailySpark({
                 aria-label="Pull lever to spin"
               >
                 <div className="relative flex flex-col items-center">
-                  <div className="absolute -top-6 h-6 w-6 rounded-full border border-amber-200/60 bg-amber-100/30 blur-[6px]" />
+                  <div className="absolute -top-6 h-6 w-6 rounded-full border border-cyan-200/60 bg-cyan-100/30 blur-[6px]" />
                   <div className="h-32 w-3 rounded-full bg-gradient-to-b from-white/80 via-white/50 to-white/10 shadow-[0_0_20px_rgba(255,255,255,0.5)]" />
                 </div>
                 <div className="relative">
-                  <div className="absolute inset-0 rounded-full bg-amber-300/40 blur-xl" />
-                  <div className="h-12 w-12 rounded-full border border-amber-200/70 bg-gradient-to-br from-amber-300 via-orange-400 to-rose-500 shadow-[0_0_28px_rgba(251,146,60,0.85)] transition group-hover:scale-110 group-active:translate-y-1" />
+                  <div className="absolute inset-0 rounded-full bg-cyan-300/40 blur-xl" />
+                  <div className="h-12 w-12 rounded-full border border-cyan-200/70 bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-indigo-400 shadow-[0_0_32px_rgba(56,189,248,0.9)] transition group-hover:scale-110 group-active:translate-y-1" />
                 </div>
                 <div className="text-[10px] uppercase tracking-[0.35em] text-white/70">Pull lever</div>
               </button>
