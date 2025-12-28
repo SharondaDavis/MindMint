@@ -18,8 +18,11 @@ export const AuraCard = forwardRef<HTMLDivElement, AuraCardProps>(function AuraC
   return (
     <div
       ref={ref}
-      className="h-[540px] w-[540px] rounded-[36px] bg-gradient-to-br from-[#16062f] via-[#1d0f57] to-[#0b1028] p-10 text-white"
+      className="relative h-[540px] w-[540px] rounded-[36px] bg-gradient-to-br from-[#16062f] via-[#1d0f57] to-[#0b1028] p-10 text-white"
     >
+      <div className="pointer-events-none absolute right-8 top-8 text-xs uppercase tracking-[0.3em] text-white/30">
+        MindMint
+      </div>
       <div className="text-xs uppercase tracking-[0.25em] text-white/60">{dateLabel}</div>
       <div className="mt-6 text-4xl font-semibold">
         {auraEmoji} {auraName}
