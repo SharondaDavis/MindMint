@@ -55,12 +55,14 @@ const SUGGESTIONS_BY_AURA: Record<string, string[]> = {
 function buildCardNote(auraName: string, keywords: string[], tips: string[]) {
   const [k1, k2] = keywords
   const [tip] = tips
-  const keywordLine = k1 ? `Today favors ${k1}${k2 ? ` and ${k2}` : ''}.` : `Today favors ${auraName.toLowerCase()} energy.`
-  const tipLine = tip ? `Small win: ${tip}` : 'Small wins count more than big plans tonight.'
+  const keywordLine = k1
+    ? `Let ${k1}${k2 ? ` and ${k2}` : ''} move like soft light through your day.`
+    : `Let ${auraName.toLowerCase()} energy move like soft light through your day.`
+  const tipLine = tip ? `If it helps, follow this thread: ${tip}` : 'Follow the thread of one small, kind action.'
   return [
-    `${auraName} aura, no pressure. ${keywordLine}`,
-    `${tipLine}`,
-    'You’re already doing enough—just keep it kind and simple.',
+    `${auraName} aura arrives with a hush, not a demand.`,
+    `${keywordLine} ${tipLine}`,
+    'You’re not behind—just in bloom at your own pace.',
   ]
 }
 
