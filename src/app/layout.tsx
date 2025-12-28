@@ -29,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
           action: {
             type: "launch_miniapp",
             name: "MindMint",
-            url: "https://mindmint.fun/app",
+            url: "https://mindmint.fun/",
             splashImageUrl: "https://mindmint.fun/splash.png",
             splashBackgroundColor: "#000000",
           },

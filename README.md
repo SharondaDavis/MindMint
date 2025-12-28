@@ -7,7 +7,7 @@
 - Spin the aura wheel for a daily (or practice) aura
 - Receive an aura tip and related affirmation
 - Optional mindfulness audio during the flow
-- Landing page at `/`, ritual experience at `/app`
+- Single-page mini app experience at `/`
 
 ## Tech (initial)
 - Next.js (App Router)

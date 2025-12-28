@@ -41,7 +41,7 @@ export function ShareModal({
   const shareUrl = useMemo(() => {
     if (typeof window === 'undefined') return ''
     const base = window.location.origin
-    return `${base}/app?ref=${referralCode}`
+    return `${base}/?ref=${referralCode}`
   }, [referralCode])
 
   if (!open || !sharePayload) return null
