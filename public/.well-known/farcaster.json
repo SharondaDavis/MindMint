@@ -11,7 +11,7 @@
     "description": "A 60-second daily aura reset: breathe, spin, and receive guidance plus an affirmation.",
     "tagline": "Breathe. Spin. Align.",
     "primaryCategory": "entertainment",
-    "tags": ["mindfulness", "ritual", "aura", "wellness"],
+    "tags": ["mindfulness", "reset", "aura", "wellness"],
     "homeUrl": "https://mindmint.fun/app",
     "url": "https://mindmint.fun/app",
     "webhookUrl": "https://mindmint.fun/api/webhook",

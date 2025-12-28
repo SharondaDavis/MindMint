@@ -542,7 +542,7 @@ export function DailySpark({
                 onClick={spinWheel}
                 disabled={gamePhase === 'spinning'}
                 className="group flex flex-col items-center gap-2 disabled:cursor-not-allowed"
-                aria-label="Pull lever to spin"
+                aria-label="Spin the wheel"
               >
                 <div className="relative flex flex-col items-center">
                   <div className="absolute -top-6 h-6 w-6 rounded-full border border-cyan-200/60 bg-cyan-100/30 blur-[6px]" />
@@ -591,7 +591,7 @@ export function DailySpark({
           </div>
 
           <p className="mt-3 text-sm text-white/70">
-            {displayAura ? displayAura.tip : 'Complete the breath sync and pull the lever to see your guidance.'}
+            {displayAura ? displayAura.tip : 'Spin the wheel to see your guidance.'}
           </p>
 
           {displayAura && (
