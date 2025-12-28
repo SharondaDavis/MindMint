@@ -184,6 +184,7 @@ export function DailySpark({
     auraName: string
     auraEmoji: string
     keywords: string[]
+    tips: string[]
     dateLabel: string
     isPractice: boolean
     duration: number
@@ -357,6 +358,7 @@ export function DailySpark({
           auraName: aura.name,
           auraEmoji: aura.emoji,
           keywords: aura.keywords,
+          tips: aura.support,
           dateLabel: dateKey,
           isPractice: practiceSpin,
           duration,

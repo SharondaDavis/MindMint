@@ -72,6 +72,7 @@ export default function RitualPage() {
     auraEmoji: string
     auraKeywords: string[]
     affirmation: string
+    tips: string[]
     dateLabel: string
     isPractice: boolean
     duration: number
@@ -184,6 +185,7 @@ export default function RitualPage() {
                   auraEmoji: payload.auraEmoji,
                   auraKeywords: payload.keywords,
                   affirmation: affirmation || suggestion,
+                  tips: payload.tips,
                   dateLabel: payload.dateLabel,
                   isPractice: payload.isPractice,
                   duration: payload.duration,
@@ -303,6 +305,7 @@ export default function RitualPage() {
             auraEmoji={sharePayload.auraEmoji}
             keywords={sharePayload.auraKeywords}
             affirmation={sharePayload.affirmation}
+            tips={sharePayload.tips}
             dateLabel={sharePayload.dateLabel}
           />
         </div>

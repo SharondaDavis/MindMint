@@ -7,11 +7,12 @@ type AuraCardProps = {
   auraEmoji: string
   keywords: string[]
   affirmation: string
+  tips: string[]
   dateLabel: string
 }
 
 export const AuraCard = forwardRef<HTMLDivElement, AuraCardProps>(function AuraCard(
-  { auraName, auraEmoji, keywords, affirmation, dateLabel },
+  { auraName, auraEmoji, keywords, affirmation, tips, dateLabel },
   ref
 ) {
   return (
@@ -35,6 +36,13 @@ export const AuraCard = forwardRef<HTMLDivElement, AuraCardProps>(function AuraC
       </div>
       <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-5 text-lg">
         {affirmation}
+      </div>
+      <div className="mt-6 grid gap-2 text-sm text-white/80">
+        {tips.map((tip) => (
+          <div key={tip} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+            {tip}
+          </div>
+        ))}
       </div>
       <div className="mt-8 text-xs uppercase tracking-[0.3em] text-white/50">MindMint</div>
     </div>
