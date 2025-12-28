@@ -267,26 +267,14 @@ export function DailySpark({
   }
 
   const playChime = () => {
-    try {
-      if (!audioContextRef.current) {
-        audioContextRef.current = new AudioContext()
+    if (!audioRef.current) return
+    const currentVolume = audioRef.current.volume
+    audioRef.current.volume = Math.min(1, currentVolume + 0.15)
+    window.setTimeout(() => {
+      if (audioRef.current) {
+        audioRef.current.volume = currentVolume
       }
-      const ctx = audioContextRef.current
-      const osc = ctx.createOscillator()
-      const gain = ctx.createGain()
-      osc.type = 'sine'
-      osc.frequency.setValueAtTime(880, ctx.currentTime)
-      osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.6)
-      gain.gain.setValueAtTime(0.001, ctx.currentTime)
-      gain.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.05)
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7)
-      osc.connect(gain)
-      gain.connect(ctx.destination)
-      osc.start()
-      osc.stop(ctx.currentTime + 0.75)
-    } catch {
-      return
-    }
+    }, 400)
   }
 
   const spinWheel = () => {
