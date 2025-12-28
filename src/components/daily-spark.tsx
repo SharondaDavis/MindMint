@@ -177,10 +177,7 @@ export function DailySpark({
   const [practiceResult, setPracticeResult] = useState<WheelResult | null>(null)
   const [ritualMode, setRitualMode] = useState<RitualMode>('morning')
   const [isSoundOn, setIsSoundOn] = useState(false)
-  const audioContextRef = useRef<AudioContext | null>(null)
-  const oscillatorRef = useRef<OscillatorNode | null>(null)
-  const oscillatorRef2 = useRef<OscillatorNode | null>(null)
-  const gainRef = useRef<GainNode | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
   const [wheelRotation, setWheelRotation] = useState(0)
   const spinIntervalRef = useRef<number | null>(null)
 
@@ -220,9 +217,9 @@ export function DailySpark({
         window.clearInterval(spinIntervalRef.current)
         spinIntervalRef.current = null
       }
-      if (audioContextRef.current) {
-        audioContextRef.current.close()
-        audioContextRef.current = null
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
       }
     }
   }, [])
@@ -240,46 +237,21 @@ export function DailySpark({
   }, [hasToday])
 
   const stopSound = () => {
-    if (oscillatorRef.current) {
-      oscillatorRef.current.stop()
-      oscillatorRef.current.disconnect()
-      oscillatorRef.current = null
-    }
-    if (oscillatorRef2.current) {
-      oscillatorRef2.current.stop()
-      oscillatorRef2.current.disconnect()
-      oscillatorRef2.current = null
-    }
-    if (gainRef.current) {
-      gainRef.current.disconnect()
-      gainRef.current = null
-    }
+    if (!audioRef.current) return
+    audioRef.current.pause()
+    audioRef.current.currentTime = 0
     setIsSoundOn(false)
   }
 
-  const startSound = () => {
+  const startSound = async () => {
     if (isSoundOn) return
+    if (!audioRef.current) {
+      audioRef.current = new Audio('/ambient.wav')
+      audioRef.current.loop = true
+      audioRef.current.volume = 0.25
+    }
     try {
-      if (!audioContextRef.current) {
-        audioContextRef.current = new AudioContext()
-      }
-      const ctx = audioContextRef.current
-      const osc = ctx.createOscillator()
-      const osc2 = ctx.createOscillator()
-      const gain = ctx.createGain()
-      osc.type = 'sine'
-      osc2.type = 'sine'
-      osc.frequency.value = 432
-      osc2.frequency.value = 528
-      gain.gain.value = 0.02
-      osc.connect(gain)
-      osc2.connect(gain)
-      gain.connect(ctx.destination)
-      osc.start()
-      osc2.start()
-      oscillatorRef.current = osc
-      oscillatorRef2.current = osc2
-      gainRef.current = gain
+      await audioRef.current.play()
       setIsSoundOn(true)
     } catch {
       return
