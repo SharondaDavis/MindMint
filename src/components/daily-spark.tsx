@@ -246,7 +246,7 @@ export function DailySpark({
   const startSound = async () => {
     if (isSoundOn) return
     if (!audioRef.current) {
-      audioRef.current = new Audio('/ambient.wav')
+      audioRef.current = new Audio('/ambient.m4a')
       audioRef.current.loop = true
       audioRef.current.volume = 0.25
     }
