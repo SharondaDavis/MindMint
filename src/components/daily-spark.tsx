@@ -407,7 +407,7 @@ export function DailySpark({
               <div className="text-xs uppercase tracking-[0.25em] text-white/50">Quick reset</div>
               <div className="mt-2 text-lg font-semibold text-white">Take a deep breath</div>
               <p className="mt-1 text-sm text-white/70">
-                Pull the lever when you’re ready for your aura.
+                Spin the wheel when you’re ready for your aura.
               </p>
             </div>
             <div className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70">
@@ -493,7 +493,7 @@ export function DailySpark({
                   <div className="absolute inset-0 rounded-full bg-cyan-300/40 blur-xl" />
                   <div className="h-12 w-12 rounded-full border border-cyan-200/70 bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-indigo-400 shadow-[0_0_32px_rgba(56,189,248,0.9)] transition group-hover:scale-110 group-active:translate-y-1" />
                 </div>
-                <div className="text-[10px] uppercase tracking-[0.35em] text-white/70">Pull lever</div>
+                <div className="text-[10px] uppercase tracking-[0.35em] text-white/70">Spin wheel</div>
               </button>
             </div>
           </div>
