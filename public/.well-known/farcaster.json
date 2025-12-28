@@ -7,25 +7,27 @@
   "miniapp": {
     "version": "1",
     "name": "MindMint",
-    "subtitle": "Daily aura ritual",
-    "description": "A 60-second daily aura ritual: breathe, spin, and receive guidance plus an affirmation.",
+    "subtitle": "Daily aura reset",
+    "description": "A 60-second daily aura reset: breathe, spin, and receive guidance plus an affirmation.",
     "tagline": "Breathe. Spin. Align.",
     "primaryCategory": "entertainment",
     "tags": ["mindfulness", "ritual", "aura", "wellness"],
-    "homeUrl": "https://mindmint.fun",
-    "url": "https://mindmint.fun",
+    "homeUrl": "https://mindmint.fun/app",
+    "url": "https://mindmint.fun/app",
     "webhookUrl": "https://mindmint.fun/api/webhook",
     "iconUrl": "https://mindmint.fun/icon.png",
-    "imageUrl": "https://mindmint.fun/splash.png",
+    "imageUrl": "https://mindmint.fun/hero.png",
     "splashImageUrl": "https://mindmint.fun/splash.png",
     "splashBackgroundColor": "#000000",
-    "heroImageUrl": "https://mindmint.fun/splash.png",
+    "heroImageUrl": "https://mindmint.fun/hero.png",
     "ogTitle": "MindMint",
     "ogDescription": "Get your daily aura in 60 seconds.",
-    "ogImageUrl": "https://mindmint.fun/splash.png",
+    "ogImageUrl": "https://mindmint.fun/hero.png",
     "noindex": false,
     "screenshotUrls": [
-      "https://mindmint.fun/splash.png"
+      "https://mindmint.fun/screenshot-1.png",
+      "https://mindmint.fun/screenshot-2.png",
+      "https://mindmint.fun/screenshot-3.png"
     ]
   }
 }

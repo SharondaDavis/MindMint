@@ -1,192 +1,229 @@
 'use client'
 
-import { Sparkles, Wallet } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
-import { sdk } from '@farcaster/miniapp-sdk'
-import { CosmicBackground } from '@/components/cosmic-background'
-import { WalletConnector } from '@/components/wallet-connector'
-import { ErrorBoundary } from '@/components/error-boundary'
-import { DailySpark } from '@/components/daily-spark'
+import { ArrowRight, Sparkles, Wand2, RefreshCw, HeartHandshake } from 'lucide-react'
+import Link from 'next/link'
+import { useEffect, useRef } from 'react'
+import { trackEvent } from '@/lib/analytics'
+import { setReferralVisit } from '@/lib/referral'
 
-export default function Home() {
-  const [walletAddress, setWalletAddress] = useState<string | null>(null)
-  const [chainId, setChainId] = useState<string | null>(null)
-  const [hasDailyCheck, setHasDailyCheck] = useState(false)
-  const [currentAura, setCurrentAura] = useState('aurora')
-  const [affirmation, setAffirmation] = useState('')
-  const [suggestion, setSuggestion] = useState('')
+export default function LandingPage() {
+  const demoRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const saved = window.localStorage.getItem('mindmint:affirmation:v1')
-    if (saved) setAffirmation(saved)
-    const seed = window.localStorage.getItem('mindmint:affirmation:seed:v1')
-    if (seed) setSuggestion(seed)
-  }, [])
-
-  const suggestionsByAura: Record<string, string[]> = {
-    aurora: [
-      'I welcome fresh ideas and playful experiments.',
-      'Creativity flows through me in small, steady ways.',
-      'I trust my imagination to guide my next step.',
-    ],
-    ocean: [
-      'I move with ease and let the day unfold.',
-      'My calm keeps me aligned and grounded.',
-      'I choose the smoothest next step.',
-    ],
-    sunset: [
-      'I release what is done and make space for new light.',
-      'Today ends with gratitude and grace.',
-      'I honor endings as new beginnings.',
-    ],
-    star: [
-      'I share my light with quiet confidence.',
-      'My progress deserves to be seen.',
-      'I trust myself to shine.',
-    ],
-    moon: [
-      'I listen inward and trust my intuition.',
-      'Stillness brings me clarity.',
-      'I am safe to slow down and reflect.',
-    ],
-    crystal: [
-      'I choose clarity over clutter.',
-      'Focus comes easily when I simplify.',
-      'I see what matters most today.',
-    ],
-  }
-
-  useEffect(() => {
-    sdk.actions.ready()
-  }, [])
-
-  const pickSuggestion = (aura = currentAura) => {
-    const pool = suggestionsByAura[aura] || suggestionsByAura.aurora
-    const next = pool[Math.floor(Math.random() * pool.length)]
-    setSuggestion(next)
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('mindmint:affirmation:seed:v1', next)
+    trackEvent('landing_view')
+    const params = new URLSearchParams(window.location.search)
+    const ref = params.get('ref')
+    if (ref) {
+      setReferralVisit(ref)
+      trackEvent('referral_visit', { ref })
     }
-  }
+  }, [])
 
-  const canCollect = useMemo(() => hasDailyCheck, [hasDailyCheck])
-
-  const handleWalletConnect = (address: string, chainId: string) => {
-    setWalletAddress(address)
-    setChainId(chainId)
-  }
-
-  const handleWalletDisconnect = () => {
-    setWalletAddress(null)
-    setChainId(null)
-  }
+  useEffect(() => {
+    if (!demoRef.current) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          trackEvent('demo_view')
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.4 }
+    )
+    observer.observe(demoRef.current)
+    return () => observer.disconnect()
+  }, [])
 
   return (
-    <CosmicBackground>
-      <main className="min-h-screen">
-        <div className="mx-auto w-full max-w-4xl px-4 py-10 md:px-8 md:py-16">
-          <header className="flex items-center justify-between gap-4">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/80 backdrop-blur">
-              <span className="h-1.5 w-1.5 rounded-full bg-fuchsia-300/80 shadow-[0_0_18px_rgba(217,70,239,0.55)]" />
-              MindMint • A mini app for dreamers
+    <main className="min-h-screen bg-[#090611] text-white">
+      <div className="mx-auto w-full max-w-6xl px-6 py-12 md:px-10 md:py-20">
+        <header className="flex items-center justify-between gap-4">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/80">
+            <span className="h-1.5 w-1.5 rounded-full bg-fuchsia-300/80 shadow-[0_0_18px_rgba(217,70,239,0.55)]" />
+            MindMint • Base Mini App
+          </div>
+          <div className="hidden text-xs text-white/60 md:flex">Minting coming soon</div>
+        </header>
+
+        <section className="mt-12 grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div>
+            <h1 className="text-balance text-4xl font-semibold tracking-tight text-white sm:text-6xl">
+              Your 60-second daily aura reset.
+            </h1>
+            <p className="mt-4 max-w-xl text-pretty text-base text-white/70 sm:text-lg">
+              Breathe, spin, and get guidance + an affirmation. One minute. Every day.
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/app"
+                onClick={() => trackEvent('cta_start_free_click')}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-white/95"
+              >
+                Start free
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <a
+                href="#demo"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                See how it works
+              </a>
             </div>
 
-            <div className="hidden items-center gap-2 text-xs text-white/60 sm:flex">
-              <Sparkles className="h-4 w-4" />
-              Play first • Collect optional
+            <div className="mt-8 flex flex-wrap gap-3 text-xs text-white/60">
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">No account needed</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Daily streaks</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Shareable aura cards</span>
             </div>
-          </header>
+          </div>
 
-          <section className="mt-8 grid gap-6">
-            <DailySpark
-              onSparkChange={(spark) => {
-                setHasDailyCheck(!!spark?.dateKey)
-              }}
-              onAuraChange={(aura) => {
-                setCurrentAura(aura)
-                pickSuggestion(aura)
-              }}
-            />
-            <section className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-              <div className="text-xs uppercase tracking-[0.25em] text-white/50">Daily affirmation</div>
-              <p className="mt-2 text-sm text-white/80">
-                A gentle prompt matched to today’s aura.
+          <div className="relative">
+            <div className="absolute -inset-6 rounded-3xl bg-gradient-to-br from-fuchsia-500/20 via-indigo-500/20 to-cyan-500/20 blur-2xl" />
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#16062f] via-[#1d0f57] to-[#0b1028] p-6">
+              <div className="text-xs uppercase tracking-[0.3em] text-white/60">Daily aura flow</div>
+              <div className="mt-4 text-3xl font-semibold">Breathe → Spin → Receive</div>
+              <p className="mt-2 text-sm text-white/70">
+                A gentle one‑minute reset designed for consistent, daily momentum.
               </p>
-              <div className="mt-4 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white/85">
-                {suggestion || 'Tap “Surprise me” to get a suggestion.'}
-              </div>
-              <div className="mt-3 flex items-center gap-2">
-                <button
-                  onClick={() => pickSuggestion(currentAura)}
-                  className="rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-semibold text-white transition hover:bg-white/15"
-                >
-                  Surprise me
-                </button>
-              </div>
-              <div className="mt-4">
-                <textarea
-                  value={affirmation}
-                  onChange={(event) => {
-                    const next = event.target.value
-                    setAffirmation(next)
-                    if (typeof window !== 'undefined') {
-                      window.localStorage.setItem('mindmint:affirmation:v1', next)
-                    }
-                  }}
-                  placeholder="Write your own affirmation..."
-                  rows={3}
-                  className="w-full resize-none rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white/90 placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-300/60"
-                />
-              </div>
-            </section>
-          </section>
-
-          <section className="mt-8">
-            {!canCollect ? (
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="text-sm font-semibold text-white">Collecting is optional</div>
-                    <div className="mt-1 text-sm text-white/70">
-                      Complete today’s aura check to unlock optional wallet connect + mint.
-                    </div>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/20 p-3 text-white/80">
-                    <Wallet className="h-5 w-5" />
-                  </div>
+              <div className="mt-6 flex items-center gap-4">
+                <div className="h-24 w-24 rounded-full border border-white/20 bg-white/10" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-2 w-full rounded-full bg-white/10" />
+                  <div className="h-2 w-4/5 rounded-full bg-white/10" />
+                  <div className="h-2 w-3/5 rounded-full bg-white/10" />
                 </div>
               </div>
-            ) : (
-              <div className="grid gap-6 lg:grid-cols-2">
-                <ErrorBoundary>
-                  <WalletConnector onConnect={handleWalletConnect} onDisconnect={handleWalletDisconnect} />
-                </ErrorBoundary>
-                {walletAddress ? (
-                  <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-                    <div className="text-sm font-semibold text-white">Wallet connected</div>
-                    <div className="mt-1 text-sm text-white/70">
-                      Minting launches in version 2. For now, enjoy the daily aura ritual.
-                    </div>
-                  </div>
-                ) : (
-                  <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-                    <div className="text-sm font-semibold text-white">Ready when you are</div>
-                    <div className="mt-1 text-sm text-white/70">
-                      Connect a wallet to collect your progress on Base. You can also just keep playing.
-                    </div>
-                  </div>
-                )}
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-14 border-y border-white/10 py-6 text-xs uppercase tracking-[0.3em] text-white/50">
+          Featured in · Built for Base · Loved by builders
+        </section>
+
+        <section id="demo" ref={demoRef} className="mt-14 grid gap-10 lg:grid-cols-[1fr_1fr] lg:items-center">
+          <div>
+            <h2 className="text-2xl font-semibold">See the flow in action</h2>
+            <p className="mt-2 text-sm text-white/70">
+              A lightweight demo of the core flow. Breathe, spin, receive.
+            </p>
+            <div className="mt-6 grid gap-3 text-sm text-white/70">
+              <div className="flex items-center gap-3">
+                <Sparkles className="h-4 w-4" />
+                1‑minute reset to set your tone.
               </div>
-            )}
-          </section>
+              <div className="flex items-center gap-3">
+                <Wand2 className="h-4 w-4" />
+                Aura guidance + affirmation.
+              </div>
+              <div className="flex items-center gap-3">
+                <RefreshCw className="h-4 w-4" />
+                Practice spins whenever you want.
+              </div>
+            </div>
+          </div>
+          <div className="relative">
+            <div className="absolute -inset-6 rounded-3xl bg-gradient-to-br from-cyan-400/20 via-indigo-400/20 to-fuchsia-400/20 blur-2xl" />
+            <div className="relative h-72 rounded-3xl border border-white/10 bg-black/40 p-6">
+              <div className="flex h-full flex-col items-center justify-center gap-3 text-center text-white/70">
+                <div className="h-28 w-28 rounded-full border border-white/20 bg-gradient-to-br from-fuchsia-400/30 via-cyan-400/20 to-indigo-400/30" />
+                <div className="text-xs uppercase tracking-[0.3em]">Breathe</div>
+                <div className="text-xs uppercase tracking-[0.3em]">Spin</div>
+                <div className="text-xs uppercase tracking-[0.3em]">Receive</div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-          <footer className="mt-10 border-t border-white/10 pt-6 text-xs text-white/45">
-            A tiny, safe ritual: local-first, no public posting, and optional collecting.
-          </footer>
-        </div>
+        <section className="mt-16 grid gap-6 lg:grid-cols-3">
+          {[
+            { title: 'Breathe', copy: 'One calm minute to reset your nervous system.' },
+            { title: 'Spin', copy: 'Reveal your daily aura in a single pull.' },
+            { title: 'Receive', copy: 'Guidance + affirmation to carry forward.' },
+          ].map((item) => (
+            <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <div className="text-lg font-semibold">{item.title}</div>
+              <p className="mt-2 text-sm text-white/70">{item.copy}</p>
+            </div>
+          ))}
+        </section>
 
-      </main>
-    </CosmicBackground>
+        <section className="mt-16 grid gap-6 lg:grid-cols-3">
+          {[
+            { quote: '“The fastest calm reset I’ve found this week.”', name: 'Builder A' },
+            { quote: '“Simple, beautiful, and I actually come back.”', name: 'Builder B' },
+            { quote: '“Feels like a tiny morning reset without the effort.”', name: 'Builder C' },
+          ].map((item) => (
+            <div key={item.name} className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <p className="text-sm text-white/80">{item.quote}</p>
+              <p className="mt-3 text-xs text-white/50">{item.name}</p>
+            </div>
+          ))}
+        </section>
+
+        <section className="mt-16">
+          <h2 className="text-2xl font-semibold">How it works</h2>
+          <div className="mt-6 grid gap-6 lg:grid-cols-3">
+            {[
+              { icon: Sparkles, title: 'Start', copy: 'Open the app and take a deep breath.' },
+              { icon: Wand2, title: 'Spin', copy: 'Spin the wheel to reveal today’s aura.' },
+              { icon: HeartHandshake, title: 'Receive', copy: 'Save or share your aura card.' },
+            ].map((item) => (
+              <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                <item.icon className="h-5 w-5" />
+                <div className="mt-4 text-lg font-semibold">{item.title}</div>
+                <p className="mt-2 text-sm text-white/70">{item.copy}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-16">
+          <h2 className="text-2xl font-semibold">FAQ</h2>
+          <div className="mt-6 space-y-3">
+            {[
+              {
+                q: 'Is MindMint free?',
+                a: 'Yes. The daily aura flow is free. Minting is coming soon.',
+              },
+              {
+                q: 'How long does it take?',
+                a: 'About 60 seconds for the core flow.',
+              },
+              {
+                q: 'Do I need a wallet?',
+                a: 'No. A wallet is optional and only needed for future minting.',
+              },
+              {
+                q: 'Can I spin more than once?',
+                a: 'Yes. Practice spins are always available.',
+              },
+              {
+                q: 'Is my data private?',
+                a: 'Affirmations and prompts are saved locally on your device.',
+              },
+            ].map((item) => (
+              <details key={item.q} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <summary className="cursor-pointer text-sm font-semibold text-white/80">
+                  {item.q}
+                </summary>
+                <p className="mt-2 text-sm text-white/60">{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <div className="fixed inset-x-4 bottom-4 z-40 rounded-2xl border border-white/10 bg-black/70 p-4 text-white shadow-lg backdrop-blur sm:hidden">
+        <Link
+          href="/app"
+          onClick={() => trackEvent('cta_start_free_click')}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-900"
+        >
+          Start free
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+    </main>
   )
 }
