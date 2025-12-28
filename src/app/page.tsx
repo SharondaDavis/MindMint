@@ -52,6 +52,18 @@ const SUGGESTIONS_BY_AURA: Record<string, string[]> = {
   ],
 }
 
+function buildCardNote(auraName: string, keywords: string[], tips: string[]) {
+  const [k1, k2] = keywords
+  const [tip] = tips
+  const keywordLine = k1 ? `Today favors ${k1}${k2 ? ` and ${k2}` : ''}.` : `Today favors ${auraName.toLowerCase()} energy.`
+  const tipLine = tip ? `Small win: ${tip}` : 'Small wins count more than big plans tonight.'
+  return [
+    `${auraName} aura, no pressure. ${keywordLine}`,
+    `${tipLine}`,
+    'You’re already doing enough—just keep it kind and simple.',
+  ]
+}
+
 function getDailyPrompt(date = new Date()) {
   const key = date.toISOString().slice(0, 10)
   const hash = key.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
@@ -68,11 +80,13 @@ export default function RitualPage() {
   const [streak, setStreak] = useState(0)
   const [shareModalOpen, setShareModalOpen] = useState(false)
   const [sharePayload, setSharePayload] = useState<{
+    auraId: string
     auraName: string
     auraEmoji: string
     auraKeywords: string[]
     affirmation: string
     tips: string[]
+    noteLines: string[]
     dateLabel: string
     isPractice: boolean
     duration: number
@@ -181,11 +195,13 @@ export default function RitualPage() {
               onComplete={(payload) => {
                 trackEvent('ritual_complete', { session_duration: payload.duration })
                 openShareModal({
+                  auraId: payload.auraId,
                   auraName: payload.auraName,
                   auraEmoji: payload.auraEmoji,
                   auraKeywords: payload.keywords,
                   affirmation: affirmation || suggestion,
                   tips: payload.tips,
+                  noteLines: buildCardNote(payload.auraName, payload.keywords, payload.tips),
                   dateLabel: payload.dateLabel,
                   isPractice: payload.isPractice,
                   duration: payload.duration,
@@ -306,6 +322,7 @@ export default function RitualPage() {
             keywords={sharePayload.auraKeywords}
             affirmation={sharePayload.affirmation}
             tips={sharePayload.tips}
+            noteLines={sharePayload.noteLines}
             dateLabel={sharePayload.dateLabel}
           />
         </div>

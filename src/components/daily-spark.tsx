@@ -181,6 +181,7 @@ export function DailySpark({
   onSparkChange?: (spark: DailySparkState['current'], streak: number) => void
   onAuraChange?: (aura: string) => void
   onComplete?: (payload: {
+    auraId: string
     auraName: string
     auraEmoji: string
     keywords: string[]
@@ -355,6 +356,7 @@ export function DailySpark({
 
         const duration = sessionStartRef.current ? Math.floor((Date.now() - sessionStartRef.current) / 1000) : 0
         onComplete?.({
+          auraId: aura.id,
           auraName: aura.name,
           auraEmoji: aura.emoji,
           keywords: aura.keywords,
