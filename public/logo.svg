@@ -1,23 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="MindMint logo">
-  <defs>
-    <radialGradient id="auraGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#F5E9FF"/>
-      <stop offset="45%" stop-color="#CBA2FF"/>
-      <stop offset="75%" stop-color="#8B5CF6"/>
-      <stop offset="100%" stop-color="#4C1D95"/>
-    </radialGradient>
-    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#E9D5FF"/>
-      <stop offset="50%" stop-color="#A78BFA"/>
-      <stop offset="100%" stop-color="#6D28D9"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" rx="120" fill="#0B0B1A"/>
-  <circle cx="256" cy="256" r="170" fill="url(#auraGlow)" opacity="0.9"/>
-  <circle cx="256" cy="256" r="130" fill="#0B0B1A"/>
-  <circle cx="256" cy="256" r="158" fill="none" stroke="url(#ring)" stroke-width="20" opacity="0.9"/>
-  <circle cx="256" cy="256" r="82" fill="none" stroke="#E9D5FF" stroke-width="10" opacity="0.8"/>
-  <path d="M256 130L282 210L368 210L300 262L326 342L256 292L186 342L212 262L144 210L230 210Z" fill="#F1E8FF"/>
-  <circle cx="256" cy="256" r="14" fill="#8B5CF6"/>
-  <circle cx="256" cy="256" r="6" fill="#F5E9FF"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="MindMint aura wheel">
+  <rect width="512" height="512" rx="120" fill="#0b0b1a" />
+  <g opacity="0.95">
+    <path d="M 256.00 56.00 A 200 200 0 0 1 429.21 156.00 L 368.58 191.00 A 130 130 0 0 0 256.00 126.00 Z" fill="#f472b6" />
+    <path d="M 429.21 156.00 A 200 200 0 0 1 429.21 356.00 L 368.58 321.00 A 130 130 0 0 0 368.58 191.00 Z" fill="#22d3ee" />
+    <path d="M 429.21 356.00 A 200 200 0 0 1 256.00 456.00 L 256.00 386.00 A 130 130 0 0 0 368.58 321.00 Z" fill="#fb7185" />
+    <path d="M 256.00 456.00 A 200 200 0 0 1 82.79 356.00 L 143.42 321.00 A 130 130 0 0 0 256.00 386.00 Z" fill="#facc15" />
+    <path d="M 82.79 356.00 A 200 200 0 0 1 82.79 156.00 L 143.42 191.00 A 130 130 0 0 0 143.42 321.00 Z" fill="#60a5fa" />
+    <path d="M 82.79 156.00 A 200 200 0 0 1 256.00 56.00 L 256.00 126.00 A 130 130 0 0 0 143.42 191.00 Z" fill="#a855f7" />
+  </g>
+  <circle cx="256.0" cy="256.0" r="110" fill="#0b0b1a" />
+  <circle cx="256.0" cy="256.0" r="80" fill="#12062f" />
+  <circle cx="256.0" cy="256.0" r="18" fill="#f5e9ff" />
 </svg>
