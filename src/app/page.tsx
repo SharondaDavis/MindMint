@@ -316,7 +316,7 @@ export default function RitualPage() {
       </main>
 
       {sharePayload && (
-        <div className="sr-only" aria-hidden="true">
+        <div className="pointer-events-none fixed -left-[10000px] top-0 opacity-0" aria-hidden="true">
           <AuraCard
             ref={cardRef}
             auraName={sharePayload.auraName}
