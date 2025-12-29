@@ -11,6 +11,7 @@ type Aura = {
   glow: string
   tip: string
   support: string[]
+  keywords: string[]
 }
 
 type WheelResult = {
@@ -35,17 +36,17 @@ const MODE_COPY: Record<RitualMode, { title: string; prompt: string; cta: string
   morning: {
     title: 'Morning aura',
     prompt: 'A quick reset to align your day.',
-    cta: 'Take a deep breath and pull the lever.',
+    cta: 'Take a deep breath and spin the wheel.',
   },
   afternoon: {
     title: 'Afternoon check‑in',
     prompt: 'Refocus with a short mid‑day reset.',
-    cta: 'Take a deep breath and pull the lever.',
+    cta: 'Take a deep breath and spin the wheel.',
   },
   night: {
     title: 'Night intentions',
     prompt: 'Close the day and set tomorrow’s tone.',
-    cta: 'Take a deep breath and pull the lever.',
+    cta: 'Take a deep breath and spin the wheel.',
   },
 }
 
@@ -66,6 +67,7 @@ const AURAS: Aura[] = [
     glow: 'rgba(244, 114, 182, 0.6)',
     tip: 'Creative breakthroughs are close. Make room for experiments.',
     support: ['Try one tiny new idea today.', 'Swap routines for 10 minutes.', 'Capture a spark in notes.'],
+    keywords: ['creative', 'bright', 'playful'],
   },
   {
     id: 'ocean',
@@ -75,6 +77,7 @@ const AURAS: Aura[] = [
     glow: 'rgba(34, 211, 238, 0.6)',
     tip: 'Flow over force. Let the day move you forward.',
     support: ['Slow your pace by 10%.', 'Hydrate before decisions.', 'Choose the smoothest next step.'],
+    keywords: ['flow', 'calm', 'clear'],
   },
   {
     id: 'sunset',
@@ -84,6 +87,7 @@ const AURAS: Aura[] = [
     glow: 'rgba(251, 113, 133, 0.6)',
     tip: 'Release what is done. Make space for what is next.',
     support: ['Close one open loop.', 'Give something a gentle ending.', 'Notice one good thing from today.'],
+    keywords: ['release', 'warm', 'renew'],
   },
   {
     id: 'star',
@@ -93,6 +97,7 @@ const AURAS: Aura[] = [
     glow: 'rgba(250, 204, 21, 0.65)',
     tip: 'Your light helps others. Share a small win.',
     support: ['Send one encouraging message.', 'Take a proud snapshot of progress.', 'Say yes to visibility.'],
+    keywords: ['bold', 'confident', 'bright'],
   },
   {
     id: 'moon',
@@ -102,6 +107,7 @@ const AURAS: Aura[] = [
     glow: 'rgba(96, 165, 250, 0.6)',
     tip: 'Quiet focus beats noise. Listen inward.',
     support: ['Turn down one distraction.', 'Journal for 3 minutes.', 'Let intuition choose the next action.'],
+    keywords: ['quiet', 'wise', 'steady'],
   },
   {
     id: 'crystal',
@@ -111,6 +117,7 @@ const AURAS: Aura[] = [
     glow: 'rgba(168, 85, 247, 0.6)',
     tip: 'Clarity arrives through simplicity. Trim the clutter.',
     support: ['Delete one thing you do not need.', 'Name the single priority.', 'Clean a small surface.'],
+    keywords: ['clear', 'focused', 'light'],
   },
 ]
 
@@ -167,9 +174,24 @@ function isYesterday(prevDateKey: string, today: Date): boolean {
 export function DailySpark({
   onSparkChange,
   onAuraChange,
+  onComplete,
+  bonusIntro = false,
+  onBonusConsumed,
 }: {
   onSparkChange?: (spark: DailySparkState['current'], streak: number) => void
   onAuraChange?: (aura: string) => void
+  onComplete?: (payload: {
+    auraId: string
+    auraName: string
+    auraEmoji: string
+    keywords: string[]
+    tips: string[]
+    dateLabel: string
+    isPractice: boolean
+    duration: number
+  }) => void
+  bonusIntro?: boolean
+  onBonusConsumed?: () => void
 }) {
   const [state, setState] = useState<DailySparkState>(() => loadState())
   const [mounted, setMounted] = useState(false)
@@ -178,6 +200,9 @@ export function DailySpark({
   const [ritualMode, setRitualMode] = useState<RitualMode>('morning')
   const [isSoundOn, setIsSoundOn] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [showBonusIntro, setShowBonusIntro] = useState(false)
+  const bonusConsumedRef = useRef(false)
+  const sessionStartRef = useRef<number | null>(null)
   const [wheelRotation, setWheelRotation] = useState(0)
   const spinIntervalRef = useRef<number | null>(null)
 
@@ -277,16 +302,7 @@ export function DailySpark({
     }, 400)
   }
 
-  const spinWheel = () => {
-    if (gamePhase === 'spinning') return
-    if (gamePhase !== 'ready') {
-      setGamePhase('ready')
-    }
-    const practiceSpin = hasToday
-    if (practiceSpin) {
-      setPracticeResult(null)
-    }
-
+  const performSpin = (practiceSpin: boolean) => {
     const now = new Date()
     const dateKey = getDateKey(now)
     const seed = hashString(dateKey + ':mindmint:' + Date.now().toString())
@@ -337,10 +353,48 @@ export function DailySpark({
 
           onAuraChange?.(aura.id)
         }
+
+        const duration = sessionStartRef.current ? Math.floor((Date.now() - sessionStartRef.current) / 1000) : 0
+        onComplete?.({
+          auraId: aura.id,
+          auraName: aura.name,
+          auraEmoji: aura.emoji,
+          keywords: aura.keywords,
+          tips: aura.support,
+          dateLabel: dateKey,
+          isPractice: practiceSpin,
+          duration,
+        })
+
         playChime()
         setGamePhase('result')
       }
     }, 16)
+  }
+
+  const spinWheel = () => {
+    if (gamePhase === 'spinning') return
+    if (gamePhase !== 'ready') {
+      setGamePhase('ready')
+    }
+    const practiceSpin = hasToday
+    if (practiceSpin) {
+      setPracticeResult(null)
+    }
+    sessionStartRef.current = Date.now()
+
+    if (bonusIntro && !bonusConsumedRef.current) {
+      setShowBonusIntro(true)
+      bonusConsumedRef.current = true
+      onBonusConsumed?.()
+      window.setTimeout(() => {
+        setShowBonusIntro(false)
+        performSpin(practiceSpin)
+      }, 3000)
+      return
+    }
+
+    performSpin(practiceSpin)
   }
 
   const wheelGradient = useMemo(() => {
@@ -356,8 +410,8 @@ export function DailySpark({
   const auraTips = displayAura?.support ?? []
   const modeCopy = MODE_COPY[ritualMode]
   const guidanceText = hasToday
-    ? 'Daily aura is locked in. Pull again anytime for a practice spin.'
-    : 'Take a deep breath, then pull the lever.'
+    ? 'Daily aura is locked in. Spin again anytime for a practice spin.'
+    : 'Take a deep breath, then spin the wheel.'
 
   if (!mounted) {
     return (
@@ -396,7 +450,7 @@ export function DailySpark({
           {ritualMode} flow
         </div>
         <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/80">
-          <div className="text-xs uppercase tracking-[0.25em] text-white/50">Ritual mode</div>
+          <div className="text-xs uppercase tracking-[0.25em] text-white/50">Flow mode</div>
           <div className="mt-2 text-base font-semibold text-white">{modeCopy.title}</div>
           <p className="mt-1 text-sm text-white/70">{modeCopy.prompt}</p>
         </div>
@@ -407,7 +461,7 @@ export function DailySpark({
               <div className="text-xs uppercase tracking-[0.25em] text-white/50">Quick reset</div>
               <div className="mt-2 text-lg font-semibold text-white">Take a deep breath</div>
               <p className="mt-1 text-sm text-white/70">
-                Pull the lever when you’re ready for your aura.
+                Spin the wheel when you’re ready for your aura.
               </p>
             </div>
             <div className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70">
@@ -435,6 +489,15 @@ export function DailySpark({
 
         <div className="mt-8 flex flex-col items-center gap-6">
           <div className="relative">
+            {showBonusIntro && (
+              <div className="absolute inset-0 z-20 flex items-center justify-center rounded-3xl bg-black/70 text-center">
+                <div className="rounded-2xl border border-white/20 bg-white/10 px-6 py-5 text-sm text-white/80">
+                  <div className="text-xs uppercase tracking-[0.3em] text-white/60">Bonus</div>
+                  <div className="mt-2 text-lg font-semibold text-white">Kaleidoscope intro</div>
+                  <div className="mt-1 text-xs text-white/60">Unlocking your spin...</div>
+                </div>
+              </div>
+            )}
             <div className="absolute -top-7 left-1/2 z-10 -translate-x-1/2">
               <div className="h-0 w-0 border-l-[14px] border-r-[14px] border-b-[22px] border-l-transparent border-r-transparent border-b-cyan-300 shadow-[0_0_35px_rgba(34,211,238,0.9)]" />
             </div>
@@ -483,7 +546,7 @@ export function DailySpark({
                 onClick={spinWheel}
                 disabled={gamePhase === 'spinning'}
                 className="group flex flex-col items-center gap-2 disabled:cursor-not-allowed"
-                aria-label="Pull lever to spin"
+                aria-label="Spin the wheel"
               >
                 <div className="relative flex flex-col items-center">
                   <div className="absolute -top-6 h-6 w-6 rounded-full border border-cyan-200/60 bg-cyan-100/30 blur-[6px]" />
@@ -493,7 +556,7 @@ export function DailySpark({
                   <div className="absolute inset-0 rounded-full bg-cyan-300/40 blur-xl" />
                   <div className="h-12 w-12 rounded-full border border-cyan-200/70 bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-indigo-400 shadow-[0_0_32px_rgba(56,189,248,0.9)] transition group-hover:scale-110 group-active:translate-y-1" />
                 </div>
-                <div className="text-[10px] uppercase tracking-[0.35em] text-white/70">Pull lever</div>
+                <div className="text-[10px] uppercase tracking-[0.35em] text-white/70">Spin wheel</div>
               </button>
             </div>
           </div>
@@ -532,7 +595,7 @@ export function DailySpark({
           </div>
 
           <p className="mt-3 text-sm text-white/70">
-            {displayAura ? displayAura.tip : 'Complete the breath sync and pull the lever to see your guidance.'}
+            {displayAura ? displayAura.tip : 'Spin the wheel to see your guidance.'}
           </p>
 
           {displayAura && (
