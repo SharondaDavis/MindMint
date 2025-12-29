@@ -335,6 +335,19 @@ export default function RitualPage() {
         onClose={() => setShareModalOpen(false)}
         referralCode={getReferralCode()}
         sharePayload={sharePayload}
+        preview={
+          sharePayload ? (
+            <AuraCard
+              auraName={sharePayload.auraName}
+              auraEmoji={sharePayload.auraEmoji}
+              keywords={sharePayload.auraKeywords}
+              affirmation={sharePayload.affirmation}
+              tips={sharePayload.tips}
+              noteLines={sharePayload.noteLines}
+              dateLabel={sharePayload.dateLabel}
+            />
+          ) : null
+        }
         onShare={(platform) => {
           trackEvent(`share_click_${platform}`)
           unlockBonus()

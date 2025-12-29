@@ -1,5 +1,6 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 import { Copy, Download, X } from 'lucide-react'
 
@@ -24,6 +25,7 @@ export function ShareModal({
   onClose,
   referralCode,
   sharePayload,
+  preview,
   onShare,
   onCopyLink,
   onDownload,
@@ -32,6 +34,7 @@ export function ShareModal({
   onClose: () => void
   referralCode: string
   sharePayload: SharePayload | null
+  preview?: ReactNode
   onShare: (platform: 'x' | 'farcaster' | 'linkedin') => void
   onCopyLink: () => void
   onDownload: () => void
@@ -79,6 +82,17 @@ export function ShareModal({
           </div>
           <div className="mt-2 text-sm text-white/70">{sharePayload.affirmation}</div>
         </div>
+
+        {preview && (
+          <div className="mt-4 rounded-2xl border border-white/10 bg-black/30 p-3">
+            <div className="text-xs uppercase tracking-[0.25em] text-white/50">Aura card preview</div>
+            <div className="relative mt-3 h-[320px] overflow-hidden rounded-2xl border border-white/10 bg-black/40 sm:h-[380px]">
+              <div className="absolute left-1/2 top-0 -translate-x-1/2 origin-top scale-[0.6] sm:scale-[0.7]">
+                {preview}
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="mt-4">
           <div className="text-xs uppercase tracking-[0.25em] text-white/50">Share tone</div>
